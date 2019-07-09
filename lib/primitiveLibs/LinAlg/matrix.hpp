@@ -151,13 +151,13 @@ bool LinAlg::Matrix<Type>::CheckDimensions (const LinAlg::Matrix<Type>& rhs, uns
         if((this->rows == rhs.getNumberOfRows()) && (this->columns == rhs.getNumberOfColumns()))
             checked = true;
         else
-            printf("As dimensoes nao batem. Impossivel realizar operacao.\n");
+            std::cout<< "As dimensoes nao batem. Impossivel realizar operacao.\n";
         break;
     case 1:
         if(this->columns == rhs.getNumberOfRows())
             checked = true;
         else
-            printf("As dimensoes nao batem. Impossivel realizar operacao.\n");
+            std::cout<< "As dimensoes nao batem. Impossivel realizar operacao.\n";
         break;
     }
 
