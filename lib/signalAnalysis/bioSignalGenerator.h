@@ -34,6 +34,10 @@ namespace ElectroStimulation{
     };
 
     static void burstController(void*);
+    static void normalController(void*);
+    static void modulationController(void*);
+    static void sd1Controller(void*);
+    static void sd2Controller(void*);
 }
 
 #include "bioSignalGenerator.hpp"
