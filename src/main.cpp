@@ -7,8 +7,11 @@
 #include "freertos/task.h"
 #include "bioSignalGenerator.h"
 #include "wifi/wifi.h"
+#include "serial.h"
+
 
 // Wifi wifi;
+Communication::Serial uart;
 ElectroStimulation::bioSignalController signal1, signal2, signal3, signal4, signal5, signal6;
 
 void sd2Test(){
@@ -85,10 +88,16 @@ extern "C" void app_main()
 {
     // wifi.connect(signalParametersChange);
     // burstTest();
-    double teste;
+    uart.connect();
+    std::string teste;
     while(1){
-        std::cin >> teste;
-        std::cout << teste;
-        vTaskDelay(500 / portTICK_PERIOD_MS);
+        // do{
+            uart >> teste;
+            // vTaskDelay(1 / portTICK_PERIOD_MS);
+        // }while(teste == ' ');
+        uart << teste;
+        uart << "\n";
+        // teste = ' ';
+        // vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 }
