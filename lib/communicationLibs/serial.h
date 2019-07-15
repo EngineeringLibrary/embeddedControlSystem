@@ -10,7 +10,7 @@ namespace Communication{
     class Serial
     {
     public:
-        Serial(){data =  (uint8_t *) malloc(Communication::BUF_SIZE); len = 0;}
+        Serial(uint16_t timeDelay = 1000){data =  (uint8_t *) malloc(Communication::BUF_SIZE); len = 0; this->timeDelay = timeDelay;}
         ~Serial(){}
         void connect();
         void write(std::string str){uart_write_bytes(UART_NUM_0, str.c_str(), str.size());}
@@ -21,6 +21,7 @@ namespace Communication{
         uart_config_t uart_config;
         uint8_t *data;
         uint16_t len;
+        uint16_t timeDelay;
     };
     void operator<< (Communication::Serial uart, std::string str){ uart.write(str);}
     void operator>> (Communication::Serial uart, std::string &str){ uart.read(); str = uart.getData(); }

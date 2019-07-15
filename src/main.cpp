@@ -11,7 +11,6 @@
 
 
 // Wifi wifi;
-Communication::Serial uart;
 ElectroStimulation::bioSignalController signal1, signal2, signal3, signal4, signal5, signal6;
 
 void sd2Test(){
@@ -84,20 +83,36 @@ void signalParametersChange(std::string data)
 
 }
 
-extern "C" void app_main()
+Communication::Serial uart(1500);
+void seriaTest()
 {
-    // wifi.connect(signalParametersChange);
-    // burstTest();
     uart.connect();
     std::string teste;
     while(1){
-        // do{
-            uart >> teste;
-            // vTaskDelay(1 / portTICK_PERIOD_MS);
-        // }while(teste == ' ');
+        uart >> teste;
         uart << teste;
         uart << "\n";
-        // teste = ' ';
-        // vTaskDelay(500 / portTICK_PERIOD_MS);
     }
+}
+
+Communication::Wifi wifi;
+static void wifiTest(void*)
+{
+    std::string teste;
+    while(1){
+        wifi >> teste;
+        // wifi << teste;
+        // wifi << "\n";
+    }
+}
+extern "C" void app_main()
+{
+    wifi.connect();
+    xTaskCreate(&wifiTest, "Wifi Test", 5*1024, NULL, 5, NULL);
+
+    // seriaTest();
+    
+    // wifi.connect(signalParametersChange);
+    // burstTest();
+    
 }

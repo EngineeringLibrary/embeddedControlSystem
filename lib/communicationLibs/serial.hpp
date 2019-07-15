@@ -17,6 +17,6 @@ void Communication::Serial::connect()
 
 uint8_t Communication::Serial::read()
 {
-    this->len = uart_read_bytes(UART_NUM_0, data, BUF_SIZE, 1000 / portTICK_RATE_MS);
+    this->len = uart_read_bytes(UART_NUM_0, data, BUF_SIZE, this->timeDelay / portTICK_RATE_MS);
     return len;
 }

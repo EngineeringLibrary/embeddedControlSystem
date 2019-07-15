@@ -10,9 +10,9 @@ bool Communication::Wifi::connect(void (*FunctionToCall)(std::string))
   this->setWifiConfig();  
   this->initialise_wifi_in_ap();  
   
-  // this->communicationInit();
+  this->communicationInit();
   // ::xTaskCreatePinnedToCore(&taskRead, "Wifi Read Data", 1024, this, 5, NULL, 1);
-  ::xTaskCreate(&taskRead, "Wifi Read Data", 5*1024, this, 5, NULL);
+  // ::xTaskCreate(&taskRead, "Wifi Read Data", 5*1024, this, 5, NULL);
   return 1;
 }
 
@@ -88,6 +88,8 @@ void Communication::Wifi::taskRead(void* param)
           netbuf_data(buf,&data,&len);//lê os dados recebidos e coloca no buffer
           data_char = (char*)data; //convertendo os dados recebidos para caracter
           wifi.setReadString(data_char);
+          // wifi.write(wifi.getData());
+          std::cout << wifi.getData();
           if(wifi.getFunctionPointer())
             wifi.callFunction(data_char);
 	        vTaskDelay(500 / portTICK_PERIOD_MS);
@@ -98,6 +100,25 @@ void Communication::Wifi::taskRead(void* param)
       netconn_delete(wifi.newconn);
     }
   }
+}
+
+void Communication::operator>> (Communication::Wifi wifi, std::string &str)
+{ 
+  struct netbuf *buf;   void *data;      std::string data_char;      u16_t len;
+
+  do{
+    wifi.err = netconn_accept(wifi.conn, &wifi.newconn);
+  }while((wifi.err = netconn_recv(wifi.newconn, &buf)) != ERR_OK);
+
+  // do{
+    netbuf_data(buf,&data,&len);//lê os dados recebidos e coloca no buffer
+    data_char = (char*)data; //convertendo os dados recebidos para caracter
+    wifi.setReadString(data_char);
+    std::cout << wifi.getData();
+  // }while(netbuf_next(buf) >= 0);//enquanto tiver dados recebidos, continua a executar
+  
+  // netconn_close(wifi.newconn);      
+  // netconn_delete(wifi.newconn);
 }
 
 static esp_err_t Communication::event_handler(void *ctx, system_event_t *event)

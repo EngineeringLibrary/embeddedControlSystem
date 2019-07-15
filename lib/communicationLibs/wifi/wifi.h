@@ -26,10 +26,13 @@ namespace Communication{
     public:
       Wifi(){ this->FunctionToCall = nullptr;}
       ~Wifi(){::vTaskDelete(m_pTask);}
-      bool connect(void (*FunctionToCall)(std::string));
+      bool connect(void (*FunctionToCall)(std::string) = 0);
       bool write(std::string word){ err = netconn_write(this->newconn,  word.c_str(),strlen(word.c_str()),NETCONN_COPY); return 1;}
       std::string read(){return this->readString;}
-      
+
+      std::string getData(){ return readString;}
+      void clearBuffer(){readString.clear();}
+
       void setReadString(const std::string &str){this->readString = str;}
 
       typedef void(*funcCall)(std::string);
@@ -64,8 +67,10 @@ namespace Communication{
   static esp_err_t event_handler(void *ctx, system_event_t *event);
   static EventGroupHandle_t wifi_event_group;
   
-  std::ostream& operator<< (std::ostream& output, Communication::Wifi wifi){ output << wifi.readString; return output;}
-  void operator << (Communication::Wifi wifi, std::string str){ wifi.write(str);}
+  void operator<< (Communication::Wifi wifi, std::string str){ wifi.write(str);}
+  void operator>> (Communication::Wifi wifi, std::string &str);
+  // std::ostream& operator<< (std::ostream& output, Communication::Wifi wifi){ output << wifi.readString; return output;}
+  // void operator << (Communication::Wifi wifi, std::string str){ wifi.write(str);}
 }
 
 #include "wifi.hpp"
