@@ -8,7 +8,7 @@
 #include "bioSignalGenerator.h"
 #include "wifi/wifi.h"
 
-Wifi wifi;
+// Wifi wifi;
 ElectroStimulation::bioSignalController signal1, signal2, signal3, signal4, signal5, signal6;
 
 void sd2Test(){
@@ -83,6 +83,12 @@ void signalParametersChange(std::string data)
 
 extern "C" void app_main()
 {
-    wifi.connect(signalParametersChange);
-    burstTest();
+    // wifi.connect(signalParametersChange);
+    // burstTest();
+    double teste;
+    while(1){
+        std::cin >> teste;
+        std::cout << teste;
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+    }
 }
