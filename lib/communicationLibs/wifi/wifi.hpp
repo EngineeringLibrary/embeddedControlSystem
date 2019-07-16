@@ -8,9 +8,9 @@ bool Communication::Wifi::connect(void (*FunctionToCall)(std::string))
   this->setDHCPConfig();
   // this->start_dhcp_server();
   this->setWifiConfig();  
-  this->initialise_wifi_in_ap();  
-  
-  this->communicationInit();
+  this->initialise_wifi_in_ap();
+
+  //  communicationInit();
   // ::xTaskCreatePinnedToCore(&taskRead, "Wifi Read Data", 1024, this, 5, NULL, 1);
   // ::xTaskCreate(&taskRead, "Wifi Read Data", 5*1024, this, 5, NULL);
   return 1;
@@ -84,7 +84,7 @@ void Communication::Wifi::taskRead(void* param)
       struct netbuf *buf; // criando um buffer para armazenar os dados recebidos via wifi
       void *data;      std::string data_char;      u16_t len;
       while((wifi.err = netconn_recv(wifi.newconn, &buf)) == ERR_OK){//entrando na rotina se algum dado for recebido
-        do{
+        // do{
           netbuf_data(buf,&data,&len);//lê os dados recebidos e coloca no buffer
           data_char = (char*)data; //convertendo os dados recebidos para caracter
           wifi.setReadString(data_char);
@@ -92,9 +92,8 @@ void Communication::Wifi::taskRead(void* param)
           std::cout << wifi.getData();
           if(wifi.getFunctionPointer())
             wifi.callFunction(data_char);
-	        vTaskDelay(500 / portTICK_PERIOD_MS);
-
-        }while(netbuf_next(buf) >= 0);//enquanto tiver dados recebidos, continua a executar
+	        netbuf_free(buf);
+        // }while(netbuf_next(buf) >= 0);//enquanto tiver dados recebidos, continua a executar
       }
       netconn_close(wifi.newconn);      
       netconn_delete(wifi.newconn);
@@ -102,23 +101,23 @@ void Communication::Wifi::taskRead(void* param)
   }
 }
 
-void Communication::operator>> (Communication::Wifi wifi, std::string &str)
+void Communication::operator>> (Communication::Wifi &wifi, void (*FunctionToCall)(Communication::Wifi &wifi))
 { 
-  struct netbuf *buf;   void *data;      std::string data_char;      u16_t len;
-
-  do{
-    wifi.err = netconn_accept(wifi.conn, &wifi.newconn);
-  }while((wifi.err = netconn_recv(wifi.newconn, &buf)) != ERR_OK);
-
-  // do{
-    netbuf_data(buf,&data,&len);//lê os dados recebidos e coloca no buffer
-    data_char = (char*)data; //convertendo os dados recebidos para caracter
-    wifi.setReadString(data_char);
-    std::cout << wifi.getData();
-  // }while(netbuf_next(buf) >= 0);//enquanto tiver dados recebidos, continua a executar
-  
-  // netconn_close(wifi.newconn);      
-  // netconn_delete(wifi.newconn);
+  wifi.communicationInit();
+  wifi.err = netconn_accept(wifi.conn, &wifi.newconn);
+  if(wifi.err == ERR_OK) {// processando a nova conexão
+    struct netbuf *buf; // criando um buffer para armazenar os dados recebidos via wifi
+    void *data;      std::string data_char;      u16_t len;
+    while((wifi.err = netconn_recv(wifi.newconn, &buf)) == ERR_OK){//entrando na rotina se algum dado for recebido
+        netbuf_data(buf, &data, &len);//lê os dados recebidos e coloca no buffer
+        data_char = (char*)data; //convertendo os dados recebidos para caracter
+        wifi.setReadString(data_char);
+        (*FunctionToCall)(wifi);
+        netbuf_free(buf);
+    }
+  }
+  netconn_close(wifi.newconn);      
+  netconn_delete(wifi.newconn);
 }
 
 static esp_err_t Communication::event_handler(void *ctx, system_event_t *event)

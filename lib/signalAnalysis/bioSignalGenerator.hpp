@@ -52,7 +52,7 @@ double ElectroStimulation::bioSignalController::getSignalBehavior(const std::str
 void ElectroStimulation::burstController(void* pvParameter)
 {
     bioSignalController signalHandler = *((bioSignalController*) pvParameter);  
-    
+
     while(1){
         signalHandler.setPowerLevel(signalHandler.getSignalBehavior("ccLevel"));
         for(int i = 0; i<10; i++){ 
