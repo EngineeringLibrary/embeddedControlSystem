@@ -61,6 +61,7 @@ namespace Test{
         signal5.addSignalBehavior("period", 100);
         signal5.addSignalBehavior("ccLevel", 100);
 
+
         xTaskCreate(ElectroStimulation::burstController, "burst", 2048, &signal5, 1, NULL);
     }
 
@@ -94,6 +95,19 @@ namespace Test{
             uart << teste;
             uart << "\n";
         }
+    }
+
+    static Communication::Wifi wifi;
+    void wifiCallback(Communication::Wifi &wifi1)
+    {
+        std::cout << wifi1.getData() << "\n";
+        wifi1 << wifi1.getData();
+    }
+
+    void wifiTest()
+    {
+        wifi.connect();
+        wifi >> wifiCallback;
     }
 }
 
