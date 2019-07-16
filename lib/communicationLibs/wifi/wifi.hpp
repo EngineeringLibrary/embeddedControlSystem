@@ -125,7 +125,7 @@ static esp_err_t Communication::event_handler(void *ctx, system_event_t *event)
 {
     switch(event->event_id) {
     case SYSTEM_EVENT_AP_START:
-    printf("Event:ESP32 is started in AP mode\n");
+    printf("Event: ESP32 is started in AP mode\n");
     break;
     
   case SYSTEM_EVENT_AP_STACONNECTED:
