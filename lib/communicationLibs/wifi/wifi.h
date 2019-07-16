@@ -20,38 +20,58 @@
 
 #include <sstream>
 
-class Wifi
-{
-  public:
-    Wifi(){}
-    ~Wifi(){::vTaskDelete(m_pTask);}
-    bool connect(void (*FunctionToCall)(std::string));
-    bool write(std::string word){ err = netconn_write(this->newconn,  word.c_str(),strlen(word.c_str()),NETCONN_COPY); return 1;}
-    std::string read(){return this->readString;}
-    bool disconnect(){return 0;}
+namespace Communication{
+  class Wifi
+  {
+    public:
+      Wifi(){ this->FunctionToCall = nullptr;}
+      ~Wifi(){::vTaskDelete(m_pTask);}
+      bool connect(void (*FunctionToCall)(std::string) = 0);
+      bool write(std::string word){ err = netconn_write(this->newconn,  word.c_str(),strlen(word.c_str()),NETCONN_COPY); return 1;}
+      std::string read(){return this->readString;}
 
-    struct netconn *conn, *newconn;   
-    err_t err;
-    std::string readString;
+      std::string getData(){ return readString;}
+      void clearBuffer(){readString.clear();}
 
-  private:
+      void setReadString(const std::string &str){this->readString = str;}
 
-    void (*FunctionToCall)(std::string);
-    tcpip_adapter_ip_info_t info;
-    wifi_init_config_t initConfig;
-    wifi_config_t config;
-    TaskHandle_t  m_pTask;
+      typedef void(*funcCall)(std::string);
+      funcCall getFunctionPointer(){return this->FunctionToCall;}
 
-    bool start_dhcp_server();
-    bool initialise_wifi_in_ap(void);
-    void setWifiConfig(void);
-    void setDHCPConfig(void);
+      // struct netconn *getConn(){return this->conn;}
+      // struct netconn *getNewConn(){return this->newconn;}
 
-    void communicationInit();
-    void callFunction(const std::string &data);
-    static void taskRead(void*);
-};
-static esp_err_t event_handler(void *ctx, system_event_t *event);
-static EventGroupHandle_t wifi_event_group;
+      bool disconnect(){return 0;}
 
+      struct netconn *conn, *newconn;   
+      err_t err;
+      std::string readString;
+
+    private:
+
+      void (*FunctionToCall)(std::string);
+      tcpip_adapter_ip_info_t info;
+      wifi_init_config_t initConfig;
+      wifi_config_t config;
+      TaskHandle_t  m_pTask;
+
+      bool start_dhcp_server();
+      bool initialise_wifi_in_ap(void);
+      void setWifiConfig(void);
+      void setDHCPConfig(void);
+
+      void communicationInit();
+      void callFunction(const std::string &data);
+      static void taskRead(void*);
+  };
+  static esp_err_t event_handler(void *ctx, system_event_t *event);
+  static EventGroupHandle_t wifi_event_group;
+  
+  void operator<< (Communication::Wifi wifi, std::string str){ wifi.write(str);}
+  void operator>> (Communication::Wifi wifi, std::string &str);
+  // std::ostream& operator<< (std::ostream& output, Communication::Wifi wifi){ output << wifi.readString; return output;}
+  // void operator << (Communication::Wifi wifi, std::string str){ wifi.write(str);}
+}
+
+#include "wifi.hpp"
 #endif

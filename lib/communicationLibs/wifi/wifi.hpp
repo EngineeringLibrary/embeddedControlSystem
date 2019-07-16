@@ -1,6 +1,6 @@
 #include "wifi.h"
 
-bool Wifi::connect(void (*FunctionToCall)(std::string))
+bool Communication::Wifi::connect(void (*FunctionToCall)(std::string))
 {
   this->FunctionToCall = FunctionToCall;
   esp_event_loop_init(event_handler, NULL);
@@ -10,13 +10,13 @@ bool Wifi::connect(void (*FunctionToCall)(std::string))
   this->setWifiConfig();  
   this->initialise_wifi_in_ap();  
   
-  // this->communicationInit();
+  this->communicationInit();
   // ::xTaskCreatePinnedToCore(&taskRead, "Wifi Read Data", 1024, this, 5, NULL, 1);
-  ::xTaskCreate(&taskRead, "Wifi Read Data", 5*1024, this, 5, NULL);
+  // ::xTaskCreate(&taskRead, "Wifi Read Data", 5*1024, this, 5, NULL);
   return 1;
 }
 
-void Wifi::setDHCPConfig(void)
+void Communication::Wifi::setDHCPConfig(void)
 {
   tcpip_adapter_init();
   tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
@@ -29,7 +29,7 @@ void Wifi::setDHCPConfig(void)
   tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP);
 }
 
-void Wifi::setWifiConfig(void)
+void Communication::Wifi::setWifiConfig(void)
 {
   strcpy((char *)this->config.ap.ssid, "AndreFelipe");
   this->config.ap.ssid_hidden = 0;
@@ -41,7 +41,7 @@ void Wifi::setWifiConfig(void)
   this->config.ap.beacon_interval = 300;
 }
 
-bool Wifi::start_dhcp_server(void){
+bool Communication::Wifi::start_dhcp_server(void){
   // tcpip_adapter_init();
   // tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
   // std::cout << this->info.ip;
@@ -50,7 +50,7 @@ bool Wifi::start_dhcp_server(void){
   return 1;
 }
 
-bool Wifi::initialise_wifi_in_ap(void)
+bool Communication::Wifi::initialise_wifi_in_ap(void)
 {
   this->initConfig = WIFI_INIT_CONFIG_DEFAULT();
   esp_wifi_init(&this->initConfig);
@@ -62,19 +62,19 @@ bool Wifi::initialise_wifi_in_ap(void)
   return 1;
 }
 
-void Wifi::communicationInit()
+void Communication::Wifi::communicationInit()
 {
   this->conn = netconn_new(NETCONN_TCP);  //cria um novo identificador de conexão
   netconn_bind(this->conn,NULL,4000); //associa a conexão à porta 4000
   netconn_listen(this->conn); //começa a escutar a conexão
 }
 
-void Wifi::callFunction(const std::string &data)
+void Communication::Wifi::callFunction(const std::string &data)
 {
   ((*this->FunctionToCall)(data));
 }
 
-void Wifi::taskRead(void* param)
+void Communication::Wifi::taskRead(void* param)
 {
   Wifi wifi = *((Wifi*)param);
   wifi.communicationInit();
@@ -87,8 +87,11 @@ void Wifi::taskRead(void* param)
         do{
           netbuf_data(buf,&data,&len);//lê os dados recebidos e coloca no buffer
           data_char = (char*)data; //convertendo os dados recebidos para caracter
-
-          wifi.callFunction(data_char);
+          wifi.setReadString(data_char);
+          // wifi.write(wifi.getData());
+          std::cout << wifi.getData();
+          if(wifi.getFunctionPointer())
+            wifi.callFunction(data_char);
 	        vTaskDelay(500 / portTICK_PERIOD_MS);
 
         }while(netbuf_next(buf) >= 0);//enquanto tiver dados recebidos, continua a executar
@@ -99,11 +102,30 @@ void Wifi::taskRead(void* param)
   }
 }
 
-static esp_err_t event_handler(void *ctx, system_event_t *event)
+void Communication::operator>> (Communication::Wifi wifi, std::string &str)
+{ 
+  struct netbuf *buf;   void *data;      std::string data_char;      u16_t len;
+
+  do{
+    wifi.err = netconn_accept(wifi.conn, &wifi.newconn);
+  }while((wifi.err = netconn_recv(wifi.newconn, &buf)) != ERR_OK);
+
+  // do{
+    netbuf_data(buf,&data,&len);//lê os dados recebidos e coloca no buffer
+    data_char = (char*)data; //convertendo os dados recebidos para caracter
+    wifi.setReadString(data_char);
+    std::cout << wifi.getData();
+  // }while(netbuf_next(buf) >= 0);//enquanto tiver dados recebidos, continua a executar
+  
+  // netconn_close(wifi.newconn);      
+  // netconn_delete(wifi.newconn);
+}
+
+static esp_err_t Communication::event_handler(void *ctx, system_event_t *event)
 {
     switch(event->event_id) {
     case SYSTEM_EVENT_AP_START:
-    printf("Event:ESP32 is started in AP mode\n");
+    printf("Event: ESP32 is started in AP mode\n");
     break;
     
   case SYSTEM_EVENT_AP_STACONNECTED:

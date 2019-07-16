@@ -107,15 +107,15 @@ void ElectroStimulation::sd1Controller(void* pvParameter)
 {
     bioSignalController signalHandler = *((bioSignalController*) pvParameter);
 
-    uint16_t time, duty, value, valDecay, dutyDecay;
+    uint16_t time, value, valDecay;
     double K = 4/50;
     
     while(1){
         time = (1000000/signalHandler.getSignalBehavior("freq"));
-        duty = signalHandler.getSignalBehavior("period");
+        // duty = signalHandler.getSignalBehavior("period");
         value = signalHandler.getSignalBehavior("ccLevel");
         valDecay = K*(signalHandler.getSignalBehavior("ccLevel")/signalHandler.getSignalBehavior("freq"));
-        dutyDecay = K*(signalHandler.getSignalBehavior("period")/signalHandler.getSignalBehavior("freq"));
+        // dutyDecay = K*(signalHandler.getSignalBehavior("period")/signalHandler.getSignalBehavior("freq"));
         gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
         signalHandler.setPowerLevel(value);
         for(uint32_t i = 0; i < (uint32_t)(5000000/time); ++i){
