@@ -8,54 +8,51 @@
 #include "bioSignalGenerator.h"
 #include "wifi/wifi.h"
 #include "serial.h"
-#include "C:/Users/andre.dantas/Documents/embeddedControlSystem/test/test.h"
+#include "../test/test.h"
 
-static Communication::Wifi wifi; TaskHandle_t xHandleBurst; static bool entrou = 0;
-ElectroStimulation::bioSignalController *signal;
+static Communication::Wifi wifi; TaskHandle_t xHandle[10]; 
+ElectroStimulation::bioSignalController *signal[10] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+uint8_t levelPin[10] = {15, 0, 16, 5, 19, 22, 32, 25, 27, 12},
+          modPin[10] = {2, 4, 17, 18, 21, 23, 33, 26, 14, 13};
 
 void wifiCallback(Communication::Wifi &wifi1)
 {
-    unsigned char test = wifi1.getData()[0];
-    std::cout << test << "\n";
-    if(!entrou){
-        signal = new ElectroStimulation::bioSignalController;
-        signal->powerControllerInit((gpio_num_t) 5, 50000, (ledc_channel_t)0);
-        signal->setOutputHandlerPin((gpio_num_t) 12);
-        signal->addSignalBehavior("freq", 1);
-        signal->addSignalBehavior("period", 100);
-        signal->addSignalBehavior("ccLevel", (uint8_t) test);
-        entrou = !entrou;
+	std::string msg = wifi1.getData();
+    uint8_t cmd = msg[0];
+	uint8_t ch = msg[1];
+	
+	if(signal[ch]){
+		vTaskDelete(xHandle[ch]);
+	    delete signal[ch];
+        signal[ch] = NULL;
+	}
+	
+	if(cmd)
+	{
+        uint8_t mod = msg[2];
+	    uint16_t freq = (msg[4] || (msg[3] << 8));
+	    uint16_t period = (msg[6] || (msg[5] << 8));
+        uint8_t pwr = msg[7];
 
-        xTaskCreatePinnedToCore(ElectroStimulation::burstController, "burst", 2*1024, signal, 8, &xHandleBurst, 1);
-    }
-    else
-    {
-        vTaskDelete(xHandleBurst);
-        std::cout << "Deletou a task" << "\n";
-        delete signal;
-        signal = new ElectroStimulation::bioSignalController;
-        ets_delay_us(100);
-        signal->powerControllerInit((gpio_num_t) 5, 50000, (ledc_channel_t)0);
-        signal->setOutputHandlerPin((gpio_num_t) 12);
-        signal->addSignalBehavior("freq", 1);
-        signal->addSignalBehavior("period", 100);
-        signal->addSignalBehavior("ccLevel", (uint8_t) test);
-
-        xTaskCreatePinnedToCore(ElectroStimulation::burstController, "modulation", 2048, signal, 8, &xHandleBurst, 1);
-        // entrou = !entrou;
-        // ::xTaskCreatePinnedToCore(&ElectroStimulation::burstController, "burst", 2*1024, &Test::signal5, 8, &xHandleBurst, 1);
-    }
-
+        signal[ch] = new ElectroStimulation::bioSignalController;
+        signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], 50000, (ledc_channel_t)ch);
+        signal[ch]->setOutputHandlerPin((gpio_num_t) modPin[ch]);
+        signal[ch]->addSignalBehavior("freq", freq);
+        signal[ch]->addSignalBehavior("period", period);
+        signal[ch]->addSignalBehavior("ccLevel", pwr);
+		
+        switch(mod){
+            case 0: xTaskCreatePinnedToCore(ElectroStimulation::burstController, "burst", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
+            case 1: xTaskCreatePinnedToCore(ElectroStimulation::normalController, "normal", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
+            case 2: xTaskCreatePinnedToCore(ElectroStimulation::modulationController, "modulation", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
+            case 3: xTaskCreatePinnedToCore(ElectroStimulation::sd1Controller, "sd1", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
+            case 4: xTaskCreatePinnedToCore(ElectroStimulation::sd2Controller, "sd2", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
+        }
+	}
 }
 
-void wifiTest()
-{
+extern "C" void app_main()
+{ 
     wifi.connect();
     wifi >> wifiCallback;
-}
-extern "C" void app_main()
-{
-    // xTaskCreate(&wifiTest, "Wifi Test", 5*1024, NULL, 4, NULL);
-    wifiTest();
-    // wifi.connect(signalParametersChange);
 }
