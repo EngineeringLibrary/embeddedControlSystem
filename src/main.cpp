@@ -11,16 +11,23 @@
 #include "../test/test.h"
 
 static Communication::Wifi wifi; TaskHandle_t xHandle[10]; 
-ElectroStimulation::bioSignalController *signal[10] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+ElectroStimulation::bioSignalController **signal;
 uint8_t levelPin[10] = {15, 0, 16, 5, 19, 22, 32, 25, 27, 12},
           modPin[10] = {2, 4, 17, 18, 21, 23, 33, 26, 14, 13};
 
 void wifiCallback(Communication::Wifi &wifi1)
 {
 	std::string msg = wifi1.getData();
-    uint8_t cmd = msg[0];
-	uint8_t ch = msg[1];
+    uint8_t cmd = msg[0] - 1;
+	uint8_t ch = msg[1] - 1; 
+
+    uint8_t mod = msg[2] - 1;
+    uint16_t freq = (((msg[3] - 1) << 8) | (msg[4] - 1));
+    uint16_t period = (((msg[5] - 1) << 8) | (msg[6] - 1));
+    uint8_t pwr = msg[7] - 1;
 	
+    std::cout << (uint16_t)cmd << "," << (uint16_t)ch << "," << (uint16_t)mod << "," << (uint16_t)freq << "," << (uint16_t)period << "," << (uint16_t)pwr << "\n";
+
 	if(signal[ch]){
 		vTaskDelete(xHandle[ch]);
 	    delete signal[ch];
@@ -29,10 +36,10 @@ void wifiCallback(Communication::Wifi &wifi1)
 	
 	if(cmd)
 	{
-        uint8_t mod = msg[2];
-	    uint16_t freq = (msg[4] || (msg[3] << 8));
-	    uint16_t period = (msg[6] || (msg[5] << 8));
-        uint8_t pwr = msg[7];
+        // uint8_t mod = msg[2];
+	    // uint16_t freq = (msg[4] || (msg[3] << 8));
+	    // uint16_t period = (msg[6] || (msg[5] << 8));
+        // uint8_t pwr = msg[7];
 
         signal[ch] = new ElectroStimulation::bioSignalController;
         signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], 50000, (ledc_channel_t)ch);
@@ -53,6 +60,7 @@ void wifiCallback(Communication::Wifi &wifi1)
 
 extern "C" void app_main()
 { 
+    signal = new ElectroStimulation::bioSignalController*[10]();
     wifi.connect();
     wifi >> wifiCallback;
 }
