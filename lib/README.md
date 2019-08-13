@@ -1,5 +1,4 @@
-# Product Name
-> Short blurb about what your product does.
+# Electrostimulation
 
 [![NPM Version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
@@ -10,58 +9,133 @@ Implemented Templates:
 ![](../2.jpeg)
 ![](../3.jpeg)
 
-## Installation
 
+# Burst Controller
 
-```sh
+```C++
+void ElectroStimulation::burstController(void* pvParameter)
+{
+    bioSignalController signalHandler = *((bioSignalController*) pvParameter);  
+
+    while(1){
+        signalHandler.setPowerLevel(signalHandler.getSignalBehavior("ccLevel"));
+        for(int i = 0; i<10; i++){ 
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
+            ets_delay_us(signalHandler.getSignalBehavior("period"));
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+            ets_delay_us(10000-signalHandler.getSignalBehavior("period"));
+        }
+        ets_delay_us((1000000/signalHandler.getSignalBehavior("freq"))-100000);
+    }
+}
 ```
 
-Windows:
+# Normal Controller
 
-```sh
+```C++
+void ElectroStimulation::normalController(void* pvParameter)
+{
+    bioSignalController signalHandler = *((bioSignalController*) pvParameter);
 
+    while(1){
+        signalHandler.setPowerLevel(signalHandler.getSignalBehavior("ccLevel"));
+        gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
+        ets_delay_us(signalHandler.getSignalBehavior("period"));
+        gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+        ets_delay_us((1000000/signalHandler.getSignalBehavior("freq"))-signalHandler.getSignalBehavior("period"));
+    }
+}
 ```
 
-## Usage example
+# SD1 Controller and SD2 Controller
 
+```C++
+void ElectroStimulation::modulationController(void* pvParameter)
+{
+    bioSignalController signalHandler = *((bioSignalController*) pvParameter);
+    
+    uint16_t time;
+    
+    while(1){
+        signalHandler.setPowerLevel(signalHandler.getSignalBehavior("ccLevel"));
+        time = (1000000/signalHandler.getSignalBehavior("freq"));
+        for(int i = 0; i < (500000/time); i++ ){
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
+            ets_delay_us(time/2); 
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+            ets_delay_us(time/2);
+        }
+        time = (1000000/(signalHandler.getSignalBehavior("freq")/2));
+        for(int i = 0; i < (500000/time); i++ ){
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
+            ets_delay_us(time/2); 
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+            ets_delay_us(time/2); 
+        }
+    }
+}
+```
 
-## Development setup
+# 
 
-## Release History
+```C++
+void ElectroStimulation::sd1Controller(void* pvParameter)
+{
+    bioSignalController signalHandler = *((bioSignalController*) pvParameter);
 
-* 0.2.1
-    * xxxxx
-* 0.2.0
-    * xxxxxx `xxxxxxxxx()`
-    * xxxxxxx `xxxxxxxxx()`
-* 0.1.1
-    * xxxxxxxx `xxxxxxxxxxxx()` (xxxxxxxxxxxxxxxxxxxx)
-* 0.1.0
-    * xxxxxxxxxxxxxxxxxx
-    * xxxxxxxxxxxxxxxx `xxxx()` xxxx `xxxxxx()`
-* 0.0.1
-    * xxxxxxxxxxxxxxxx
+    uint16_t time, value, valDecay;
+    double K = 4/50;
+    
+    while(1){
+        time = (1000000/signalHandler.getSignalBehavior("freq"));
+        value = signalHandler.getSignalBehavior("ccLevel");
+        valDecay = K*(signalHandler.getSignalBehavior("ccLevel")/signalHandler.getSignalBehavior("freq"));
+        gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
+        signalHandler.setPowerLevel(value);
+        for(uint32_t i = 0; i < (uint32_t)(5000000/time); ++i){
+            signalHandler.setPowerLevel(value -= valDecay);
+            ets_delay_us(time);
+        }
+        for(uint32_t i = 0; i < (uint32_t)(5000000/time); ++i){
+            signalHandler.setPowerLevel(value += valDecay);
+            ets_delay_us(time);
+        }
+    }
+}
 
-## Meta
+void ElectroStimulation::sd2Controller(void* pvParameter)
+{
+    bioSignalController signalHandler = *((bioSignalController*) pvParameter);
 
-xxxxxxxxxxxxxxx – [@YourTwitter](xxxxxxxxxxxxxxxxxxxxxxxxx) – xxxxxxxxxxx@xxxxxxxxxxxx.com
+    uint16_t time, duty, value, valDecay, dutyDecay;
+    
+    while(1){
+        time = (1000000/signalHandler.getSignalBehavior("freq"));
+        duty = signalHandler.getSignalBehavior("period");
+        value = signalHandler.getSignalBehavior("ccLevel");
+        valDecay = (7*signalHandler.getSignalBehavior("ccLevel"))/(50*signalHandler.getSignalBehavior("freq"));
+        dutyDecay = (7*signalHandler.getSignalBehavior("period"))/(50*signalHandler.getSignalBehavior("freq"));
 
-Distributed under the XYZ license. See ``xxxxxxxxxxxx`` for more information.
+        signalHandler.setPowerLevel(value);
+        for(int i = 0; i < (5000000/time); i++){
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
+            ets_delay_us(duty);
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+            ets_delay_us(time-duty);
+            duty += dutyDecay;
+            value -= valDecay;
+            signalHandler.setPowerLevel(value);
+        }
+        for(int i = 0; i < (5000000/time); i++){
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
+            ets_delay_us(duty);
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+            ets_delay_us(time-duty);
+            duty -= dutyDecay;
+            value += valDecay;
+            signalHandler.setPowerLevel(value);
+        }
+    }
+}
 
-[https://github.com/yourname/github-link](xxxxxxxxxxxxxxxxxxxxxxxx)
-
-## Contributing
-
-1. Fork it (<https://xxxxxxxxxxxx/yourname/yourproject/fork>)
-2. Create your feature branch (`git checkout -b feature/xxxx`)
-3. Commit your changes (`git commit -am 'Add some xxxxxxx'`)
-4. Push to the branch (`git push origin feature/xxxxxxxxxxxxx`)
-5. Create a new Pull Request
-
-<!-- Markdown link & img dfn's -->
-[npm-image]: https://img.shields.io/npm/v/datadog-metrics.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/datadog-metrics
-[npm-downloads]: https://img.shields.io/npm/dm/datadog-metrics.svg?style=flat-square
-[travis-image]: https://img.shields.io/travis/dbader/node-datadog-metrics/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/dbader/node-datadog-metrics
-[wiki]: https://github.com/yourname/yourproject/wiki
+```
