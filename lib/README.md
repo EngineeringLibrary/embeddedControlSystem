@@ -47,7 +47,7 @@ void ElectroStimulation::normalController(void* pvParameter)
 }
 ```
 
-# SD1 Controller and SD2 Controller
+# Modulation Controller
 
 ```C++
 void ElectroStimulation::modulationController(void* pvParameter)
@@ -76,7 +76,7 @@ void ElectroStimulation::modulationController(void* pvParameter)
 }
 ```
 
-# 
+# SD1 Controller
 
 ```C++
 void ElectroStimulation::sd1Controller(void* pvParameter)
@@ -102,7 +102,11 @@ void ElectroStimulation::sd1Controller(void* pvParameter)
         }
     }
 }
+```
 
+# SD2 Controller
+
+```C++
 void ElectroStimulation::sd2Controller(void* pvParameter)
 {
     bioSignalController signalHandler = *((bioSignalController*) pvParameter);
