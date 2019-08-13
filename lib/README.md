@@ -7,8 +7,8 @@
 
 One to two paragraph statement about your product and what it does.
 
-![](../2.png)
-![](../3.png)
+![](../2.jpeg)
+![](../3.jpeg)
 
 ## Installation
 
