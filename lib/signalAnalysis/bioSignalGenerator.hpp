@@ -56,9 +56,9 @@ void ElectroStimulation::burstController(void* pvParameter)
     while(1){
         signalHandler.setPowerLevel(signalHandler.getSignalBehavior("ccLevel"));
         for(int i = 0; i<10; i++){ 
-            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
-            ets_delay_us(signalHandler.getSignalBehavior("period"));
             gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+            ets_delay_us(signalHandler.getSignalBehavior("period"));
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
             ets_delay_us(10000-signalHandler.getSignalBehavior("period"));
         }
         ets_delay_us((1000000/signalHandler.getSignalBehavior("freq"))-100000);
@@ -71,9 +71,9 @@ void ElectroStimulation::normalController(void* pvParameter)
 
     while(1){
         signalHandler.setPowerLevel(signalHandler.getSignalBehavior("ccLevel"));
-        gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
-        ets_delay_us(signalHandler.getSignalBehavior("period"));
         gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+        ets_delay_us(signalHandler.getSignalBehavior("period"));
+        gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
         ets_delay_us((1000000/signalHandler.getSignalBehavior("freq"))-signalHandler.getSignalBehavior("period"));
     }
 }
@@ -88,16 +88,16 @@ void ElectroStimulation::modulationController(void* pvParameter)
         signalHandler.setPowerLevel(signalHandler.getSignalBehavior("ccLevel"));
         time = (1000000/signalHandler.getSignalBehavior("freq"));
         for(int i = 0; i < (500000/time); i++ ){
-            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
-            ets_delay_us(time/2); 
             gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+            ets_delay_us(time/2); 
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
             ets_delay_us(time/2);
         }
         time = (1000000/(signalHandler.getSignalBehavior("freq")/2));
         for(int i = 0; i < (500000/time); i++ ){
-            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
-            ets_delay_us(time/2); 
             gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+            ets_delay_us(time/2); 
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
             ets_delay_us(time/2); 
         }
     }
@@ -116,20 +116,20 @@ void ElectroStimulation::sd1Controller(void* pvParameter)
         value = signalHandler.getSignalBehavior("ccLevel");
         valDecay = K*(signalHandler.getSignalBehavior("ccLevel")/signalHandler.getSignalBehavior("freq"));
         // dutyDecay = K*(signalHandler.getSignalBehavior("period")/signalHandler.getSignalBehavior("freq"));
-        gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
+        gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
         signalHandler.setPowerLevel(value);
         for(uint32_t i = 0; i < (uint32_t)(5000000/time); ++i){
-            //gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
-            //ets_delay_us(duty += dutyDecay);
             //gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+            //ets_delay_us(duty += dutyDecay);
+            //gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
             //ets_delay_us(time-duty);
             signalHandler.setPowerLevel(value -= valDecay);
             ets_delay_us(time);
         }
         for(uint32_t i = 0; i < (uint32_t)(5000000/time); ++i){
-            //gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
-            //ets_delay_us(duty -= dutyDecay);
             //gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+            //ets_delay_us(duty -= dutyDecay);
+            //gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
             //ets_delay_us(time-duty);
             signalHandler.setPowerLevel(value += valDecay);
             ets_delay_us(time);
@@ -152,18 +152,18 @@ void ElectroStimulation::sd2Controller(void* pvParameter)
 
         signalHandler.setPowerLevel(value);
         for(int i = 0; i < (5000000/time); i++){
-            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
-            ets_delay_us(duty);
             gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+            ets_delay_us(duty);
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
             ets_delay_us(time-duty);
             duty += dutyDecay;
             value -= valDecay;
             signalHandler.setPowerLevel(value);
         }
         for(int i = 0; i < (5000000/time); i++){
-            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
-            ets_delay_us(duty);
             gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+            ets_delay_us(duty);
+            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
             ets_delay_us(time-duty);
             duty -= dutyDecay;
             value += valDecay;

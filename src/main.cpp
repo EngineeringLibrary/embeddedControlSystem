@@ -9,58 +9,87 @@
 #include "wifi/wifi.h"
 #include "serial.h"
 #include "../test/test.h"
+#include <thread>
+#include <atomic>
+#include <condition_variable>
+#include <future>
+#include <mutex>
+#include "adxl345.h"
 
-static Communication::Wifi wifi; TaskHandle_t xHandle[10]; 
+static Communication::Wifi wifi;
+TaskHandle_t xHandle[10];
 ElectroStimulation::bioSignalController **signal;
 uint8_t levelPin[10] = {15, 0, 16, 5, 19, 22, 32, 25, 27, 12},
-          modPin[10] = {2, 4, 17, 18, 21, 23, 33, 26, 14, 13};
+        modPin[10] = {2, 4, 17, 18, 21, 23, 33, 26, 14, 13};
 
 void wifiCallback(Communication::Wifi &wifi1)
 {
-	std::string msg = wifi1.getData();
+    std::string msg = wifi1.getData();
     uint8_t cmd = msg[0] - 1;
-	uint8_t ch = msg[1] - 1; 
+    uint8_t ch = msg[1] - 1;
 
     uint8_t mod = msg[2] - 1;
     uint16_t freq = (((msg[3] - 1) << 8) | (msg[4] - 1));
     uint16_t period = (((msg[5] - 1) << 8) | (msg[6] - 1));
     uint8_t pwr = msg[7] - 1;
-	
+
     std::cout << (uint16_t)cmd << "," << (uint16_t)ch << "," << (uint16_t)mod << "," << (uint16_t)freq << "," << (uint16_t)period << "," << (uint16_t)pwr << "\n";
 
-	if(signal[ch]){
-		vTaskDelete(xHandle[ch]);
-	    delete signal[ch];
+    if (signal[ch])
+    {
+        vTaskDelete(xHandle[ch]);
+        delete signal[ch];
         signal[ch] = NULL;
-	}
-	
-	if(cmd)
-	{
+    }
+
+    if (cmd)
+    {
         // uint8_t mod = msg[2];
-	    // uint16_t freq = (msg[4] || (msg[3] << 8));
-	    // uint16_t period = (msg[6] || (msg[5] << 8));
+        // uint16_t freq = (msg[4] || (msg[3] << 8));
+        // uint16_t period = (msg[6] || (msg[5] << 8));
         // uint8_t pwr = msg[7];
 
         signal[ch] = new ElectroStimulation::bioSignalController;
-        signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], 50000, (ledc_channel_t)ch);
-        signal[ch]->setOutputHandlerPin((gpio_num_t) modPin[ch]);
+        signal[ch]->powerControllerInit((gpio_num_t)levelPin[ch], 50000, (ledc_channel_t)ch);
+        signal[ch]->setOutputHandlerPin((gpio_num_t)modPin[ch]);
         signal[ch]->addSignalBehavior("freq", freq);
         signal[ch]->addSignalBehavior("period", period);
         signal[ch]->addSignalBehavior("ccLevel", pwr);
-		
-        switch(mod){
-            case 0: xTaskCreatePinnedToCore(ElectroStimulation::burstController, "burst", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
-            case 1: xTaskCreatePinnedToCore(ElectroStimulation::normalController, "normal", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
-            case 2: xTaskCreatePinnedToCore(ElectroStimulation::modulationController, "modulation", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
-            case 3: xTaskCreatePinnedToCore(ElectroStimulation::sd1Controller, "sd1", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
-            case 4: xTaskCreatePinnedToCore(ElectroStimulation::sd2Controller, "sd2", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
+
+        switch (mod)
+        {
+        case 0:
+            xTaskCreatePinnedToCore(ElectroStimulation::burstController, "burst", 2 * 1024, signal[ch], 8, &xHandle[ch], 1);
+            break;
+        case 1:
+            xTaskCreatePinnedToCore(ElectroStimulation::normalController, "normal", 2 * 1024, signal[ch], 8, &xHandle[ch], 1);
+            break;
+        case 2:
+            xTaskCreatePinnedToCore(ElectroStimulation::modulationController, "modulation", 2 * 1024, signal[ch], 8, &xHandle[ch], 1);
+            break;
+        case 3:
+            xTaskCreatePinnedToCore(ElectroStimulation::sd1Controller, "sd1", 2 * 1024, signal[ch], 8, &xHandle[ch], 1);
+            break;
+        case 4:
+            xTaskCreatePinnedToCore(ElectroStimulation::sd2Controller, "sd2", 2 * 1024, signal[ch], 8, &xHandle[ch], 1);
+            break;
         }
-	}
+    }
 }
 
+adxl345 accel;
 extern "C" void app_main()
-{ 
-    signal = new ElectroStimulation::bioSignalController*[10]();
-    wifi.connect();
-    wifi >> wifiCallback;
+{
+    // signal = new ElectroStimulation::bioSignalController*[10]();
+    // wifi.connect();
+    // wifi >> wifiCallback;
+    accel.init();
+    while (1)
+    {
+        accel.read();
+        std::cout << accel.get_x() << std::endl;
+        std::cout << accel.get_y() << std::endl;
+        std::cout << accel.get_z() << std::endl;
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+    }
 }
