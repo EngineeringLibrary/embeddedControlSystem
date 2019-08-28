@@ -9,13 +9,11 @@
 #include "wifi/wifi.h"
 #include "serial.h"
 #include "../test/test.h"
-#include "adxl345.h"
 
 static Communication::Wifi wifi; TaskHandle_t xHandle[10]; 
 ElectroStimulation::bioSignalController **signal;
 uint8_t levelPin[10] = {15, 0, 16, 5, 19, 22, 32, 25, 27, 12},
           modPin[10] = {2, 4, 17, 18, 21, 23, 33, 26, 14, 13};
-adxl345 accel;
 
 void wifiCallback(Communication::Wifi &wifi1)
 {
@@ -58,14 +56,10 @@ void wifiCallback(Communication::Wifi &wifi1)
             case 4: xTaskCreatePinnedToCore(ElectroStimulation::sd2Controller, "sd2", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
         }
 	}
-    accel.read();
-    std::stringstream ss; ss << accel.get_x();
-    wifi << ss.str();
 }
 
 extern "C" void app_main()
 { 
-    accel.init();
     signal = new ElectroStimulation::bioSignalController*[10]();
     wifi.connect();
     wifi >> wifiCallback;
