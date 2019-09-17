@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <time.h>
 #include "esp_system.h"
 #include "rom/ets_sys.h"
@@ -8,13 +9,13 @@
 #include "bioSignalGenerator.h"
 #include "wifi/wifi.h"
 #include "serial.h"
-#include "../test/test.h"
+//#include "../test/test.h"
 #include "adxl345.h"
 
-static Communication::Wifi wifi; TaskHandle_t xHandle[10]; 
+static Communication::Wifi wifi; TaskHandle_t xHandle[4]; 
 ElectroStimulation::bioSignalController **signal;
-uint8_t levelPin[10] = {15, 0, 16, 5, 19, 22, 32, 25, 27, 12},
-          modPin[10] = {2, 4, 17, 18, 21, 23, 33, 26, 14, 13};
+uint8_t levelPin[4] = {2, 16, 5, 19},
+          modPin[4] = {15, 4, 17, 18};
 adxl345 accel;
 
 void wifiCallback(Communication::Wifi &wifi1)
@@ -44,29 +45,30 @@ void wifiCallback(Communication::Wifi &wifi1)
         // uint8_t pwr = msg[7];
 
         signal[ch] = new ElectroStimulation::bioSignalController;
-        signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], 50000, (ledc_channel_t)ch);
+        signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], 5000, (ledc_channel_t)ch, (ledc_timer_t)ch);
         signal[ch]->setOutputHandlerPin((gpio_num_t) modPin[ch]);
         signal[ch]->addSignalBehavior("freq", freq);
         signal[ch]->addSignalBehavior("period", period);
         signal[ch]->addSignalBehavior("ccLevel", pwr);
 		
         switch(mod){
-            case 0: xTaskCreatePinnedToCore(ElectroStimulation::burstController, "burst", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
-            case 1: xTaskCreatePinnedToCore(ElectroStimulation::normalController, "normal", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
-            case 2: xTaskCreatePinnedToCore(ElectroStimulation::modulationController, "modulation", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
-            case 3: xTaskCreatePinnedToCore(ElectroStimulation::sd1Controller, "sd1", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
-            case 4: xTaskCreatePinnedToCore(ElectroStimulation::sd2Controller, "sd2", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
+            case 0: xTaskCreatePinnedToCore(ElectroStimulation::burstController, "burst", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;
+            case 1: xTaskCreatePinnedToCore(ElectroStimulation::normalController, "normal", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;
+            case 2: xTaskCreatePinnedToCore(ElectroStimulation::modulationController, "modulation", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;
+            case 3: xTaskCreatePinnedToCore(ElectroStimulation::sd1Controller, "sd1", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;
+            case 4: xTaskCreatePinnedToCore(ElectroStimulation::sd2Controller, "sd2", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;
         }
 	}
     accel.read();
-    std::stringstream ss; ss << accel.get_x();
+    std::stringstream ss; ss << std::setw(2*5+1) << std::setprecision(5) << std::fixed << accel.get_filtered_x() << "," << accel.get_pitch() << "," << accel.get_roll();
     wifi << ss.str();
 }
 
 extern "C" void app_main()
 { 
     accel.init();
-    signal = new ElectroStimulation::bioSignalController*[10]();
+    accel.calibrate();
+    signal = new ElectroStimulation::bioSignalController*[4]();
     wifi.connect();
     wifi >> wifiCallback;
 }

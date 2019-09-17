@@ -15,7 +15,7 @@ namespace ElectroStimulation{
     {
     public:
         bioSignalController(){}
-        void powerControllerInit(const gpio_num_t &pin, const uint32_t &freq, const ledc_channel_t &channel);
+        void powerControllerInit(const gpio_num_t &pin, const uint32_t &freq, const ledc_channel_t &channel, const ledc_timer_t &timer);
         void setPowerLevel(const double &powerLevel);
         void setOutputHandlerPin(const gpio_num_t &outputHandlerPin);
         gpio_num_t getOutputHandlerPin () const {return outputHandlerPin;}

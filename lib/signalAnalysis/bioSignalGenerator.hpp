@@ -1,22 +1,22 @@
 #include "bioSignalGenerator.h"
 
-void ElectroStimulation::bioSignalController::powerControllerInit(const gpio_num_t &pin, const uint32_t &freq, const ledc_channel_t &channel)
+void ElectroStimulation::bioSignalController::powerControllerInit(const gpio_num_t &pin, const uint32_t &freq, const ledc_channel_t &channel, const ledc_timer_t &timer)
 {
     gpio_pad_select_gpio((gpio_num_t)pin);
     gpio_set_direction((gpio_num_t)pin, GPIO_MODE_OUTPUT); 
 
     ledc_timer.duty_resolution = LEDC_TIMER_10_BIT;
     ledc_timer.freq_hz = freq;
-    ledc_timer.speed_mode = LEDC_HIGH_SPEED_MODE;
-    ledc_timer.timer_num = LEDC_TIMER_0;
+    ledc_timer.speed_mode = LEDC_LOW_SPEED_MODE;
+    ledc_timer.timer_num = timer;
     // Set configuration of timer0 for high speed channels
     ledc_timer_config(&ledc_timer);
 
 	ledc_channel.duty       = 0; 
 	ledc_channel.channel    = channel;
 	ledc_channel.gpio_num   = pin;
-	ledc_channel.timer_sel  = LEDC_TIMER_0;
-	ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
+	ledc_channel.timer_sel  = timer;
+	ledc_channel.speed_mode = LEDC_LOW_SPEED_MODE;
     ledc_channel_config(&ledc_channel);
 }
 

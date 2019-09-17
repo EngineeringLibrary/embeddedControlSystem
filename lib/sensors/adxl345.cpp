@@ -38,6 +38,7 @@ bool adxl345::init()
     _offset[1] = 0;
     _offset[2] = 0;
 
+    this->filter_constant = 0.1;
     return true;
 }
 
@@ -67,8 +68,11 @@ void adxl345::read()
     _raw[2] = ((int16_t)reg[5] << 8) | reg[4];
 
     _data[0] = (_raw[0] - _offset[0]) * 0.00390625;
+    _filtered_data[0] = _data[0] * filter_constant + (_filtered_data[0] * (1.0-filter_constant));
     _data[1] = (_raw[1] - _offset[1]) * 0.00390625;
+    _filtered_data[1] = _data[1] * filter_constant + (_filtered_data[1] * (1.0-filter_constant));
     _data[2] = (_raw[2] - _offset[2]) * 0.00390625;
+    _filtered_data[2] = _data[2] * filter_constant + (_filtered_data[2] * (1.0-filter_constant));
 }
 
 
@@ -106,4 +110,34 @@ const double& adxl345::get_y() const
 const double& adxl345::get_z() const
 {
     return _data[2];
+}
+
+double adxl345::get_filtered_x()
+{
+    return _filtered_data[0];
+}
+
+double adxl345::get_filtered_y()
+{
+    return _filtered_data[1];
+}
+
+double adxl345::get_filtered_z()
+{
+    return _filtered_data[2];
+}
+
+double adxl345::get_pitch()
+{
+    return (atan2(_filtered_data[0],sqrt(_filtered_data[1]*_filtered_data[1]+_filtered_data[2]*_filtered_data[2])) * 180.0) / PI;
+}
+
+double adxl345::get_roll()
+{
+    return (atan2(_filtered_data[1],(sqrt(_filtered_data[0]*_filtered_data[0]+_filtered_data[2]*_filtered_data[2]))) * 180.0) / PI;
+}
+
+void adxl345::set_filter_constant(const double &filter_constant)
+{
+    this->filter_constant = filter_constant;
 }
