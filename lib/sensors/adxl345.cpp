@@ -37,8 +37,11 @@ bool adxl345::init()
     _offset[0] = 0;
     _offset[1] = 0;
     _offset[2] = 0;
+    _filtered_data[0] = 0;
+    _filtered_data[1] = 0;
+    _filtered_data[2] = 0;
 
-    this->filter_constant = 0.1;
+    this->filter_constant = 0.5;
     return true;
 }
 

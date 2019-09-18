@@ -60,7 +60,8 @@ void wifiCallback(Communication::Wifi &wifi1)
         }
 	}
     accel.read();
-    std::stringstream ss; ss << std::setw(2*5+1) << std::setprecision(5) << std::fixed << accel.get_filtered_x() << "," << accel.get_pitch() << "," << accel.get_roll();
+    std::stringstream ss; ss << std::setw(2*5+1) << std::setprecision(5) << std::fixed 
+    << accel.get_filtered_x() << ",  " << accel.get_pitch() << ",  " << accel.get_roll();
     wifi << ss.str();
 }
 
