@@ -38,7 +38,7 @@ void Communication::Wifi::setWifiConfig(void)
   this->config.ap.authmode = WIFI_AUTH_WPA2_PSK;
   strcpy((char *)this->config.ap.password, "12345678");
   this->config.ap.max_connection = 3;
-  this->config.ap.beacon_interval = 300;
+  this->config.ap.beacon_interval = 752;
 }
 
 bool Communication::Wifi::start_dhcp_server(void){
@@ -87,9 +87,9 @@ void Communication::Wifi::taskRead(void* param)
         // do{
           netbuf_data(buf,&data,&len);//lê os dados recebidos e coloca no buffer
           data_char = (char*)data; //convertendo os dados recebidos para caracter
-          wifi.setReadString(data_char);
+          //wifi.setReadString(data_char);
           // wifi.write(wifi.getData());
-          std::cout << wifi.getData();
+          //std::cout << wifi.getData();
           if(wifi.getFunctionPointer())
             wifi.callFunction(data_char);
 	        netbuf_free(buf);

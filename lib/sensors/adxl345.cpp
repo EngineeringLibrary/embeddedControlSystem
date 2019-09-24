@@ -132,7 +132,7 @@ double adxl345::get_filtered_z()
 
 double adxl345::get_pitch()
 {
-    return (atan2(_filtered_data[0],sqrt(_filtered_data[1]*_filtered_data[1]+_filtered_data[2]*_filtered_data[2])) * 180.0) / PI;
+    return (atan2(_filtered_data[0],sign(_filtered_data[2])*sqrt(_filtered_data[1]*_filtered_data[1]+_filtered_data[2]*_filtered_data[2])) * 180.0) / PI;
 }
 
 double adxl345::get_roll()

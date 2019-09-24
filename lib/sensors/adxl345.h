@@ -41,6 +41,8 @@ private:
     int16_t  _raw[3];     // raw data
     long double   _data[3], _filtered_data[3], filter_constant;    // aceleration data
     int16_t  _offset[3];  // offset data
+
+    int sign(double value){if(value > 0) return 1; else return -1;}
 };
 
 

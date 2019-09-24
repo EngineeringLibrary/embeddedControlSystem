@@ -68,7 +68,7 @@ void wifiCallback(Communication::Wifi &wifi1)
 extern "C" void app_main()
 { 
     accel.init();
-    accel.calibrate();
+    //accel.calibrate();
     signal = new ElectroStimulation::bioSignalController*[4]();
     wifi.connect();
     wifi >> wifiCallback;
