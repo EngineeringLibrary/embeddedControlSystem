@@ -12,7 +12,7 @@ ControlHandler::PID<Type>::PID()
     this->pastError = 0;
     this->integralError = 0;
 
-    this->Step = 0.1;
+    this->Step = 1;
     this->upperLimit = 200;
     this->lowerLimit = -200;
 }
@@ -29,9 +29,9 @@ ControlHandler::PID<Type>::PID(const LinAlg::Matrix<Type> &PIDsParameters)
     this->pastError = 0;
     this->integralError = 0;
 
-    this->Step = 0.1;
-    this->upperLimit = 200;
-    this->lowerLimit = -200;
+    this->Step = 1;
+    this->upperLimit = 1000000;
+    this->lowerLimit = -1000000;
 }
 
 template<typename Type>
@@ -106,6 +106,7 @@ Type ControlHandler::PID<Type>::OutputControl(Type Reference, Type SignalInput)
 
     difError();
     intError();
+    std::cout << this->Error << ", " << this->integralError << ", " << this->derivativeError << std::endl;
     this->PIDout = (this->kp*this->Error + this->ki*this->integralError + this->kd*this->derivativeError);
     errorLimitation();
     

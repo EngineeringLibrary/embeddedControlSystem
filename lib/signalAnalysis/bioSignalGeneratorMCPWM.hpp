@@ -1,69 +1,73 @@
-#include "bioSignalGenerator.h"
+#include "bioSignalGeneratorMCPWM.h"
 
-void ElectroStimulation::bioSignalController::powerControllerInit(const gpio_num_t &pin, const adc1_channel_t &feedbackPin, const uint32_t &freq, const ledc_channel_t &channel, const ledc_timer_t &timer)
+void ElectroStimulation::bioSignalControllerMCPWM::powerControllerInit(const gpio_num_t &pin1, const gpio_num_t &pin2, const uint32_t &freq, const mcpwm_unit_t &mcpwm_num, const mcpwm_timer_t &timer_num)
 {
-    gpio_pad_select_gpio((gpio_num_t)pin);
-    gpio_set_direction((gpio_num_t)pin, GPIO_MODE_OUTPUT); 
+  this->mcpwm_num = mcpwm_num;
+  this->timer_num = timer_num;
+  mcpwm_config_t  pwm_config;
 
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(feedbackPin,ADC_ATTEN_DB_0);
+  mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, pin1);
+  mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0B, pin2);
 
-    ledc_timer.duty_resolution = LEDC_TIMER_10_BIT;
-    ledc_timer.freq_hz = freq;
-    ledc_timer.speed_mode = LEDC_LOW_SPEED_MODE;
-    ledc_timer.timer_num = timer;
-    // Set configuration of timer0 for high speed channels
-    ledc_timer_config(&ledc_timer);
+  pwm_config.frequency = freq;    //frequency = 500Hz,
+  pwm_config.cmpr_a = 0;    //duty cycle of PWMxA = 0
+  pwm_config.cmpr_b = 0;    //duty cycle of PWMxb = 0
+  pwm_config.counter_mode = MCPWM_UP_COUNTER;
+  pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
+  mcpwm_init(mcpwm_num, timer_num, &pwm_config);
+  mcpwm_deadtime_enable(mcpwm_num, timer_num, MCPWM_BYPASS_FED, 100,100);
 
-    ledc_channel.hpoint     = 0;
-	ledc_channel.duty       = 0; 
-	ledc_channel.channel    = channel;
-	ledc_channel.gpio_num   = pin;
-	ledc_channel.timer_sel  = timer;
-	ledc_channel.speed_mode = LEDC_LOW_SPEED_MODE;
-    ledc_channel_config(&ledc_channel);
+  
+  //Enable deadtime on PWM0A and PWM2B with red = (10)*100ns on PWMA
 }
 
-void ElectroStimulation::bioSignalController::setPowerLevel(const double &powerLevel)
+void ElectroStimulation::bioSignalControllerMCPWM::setPowerLevel(const double &powerLevel)
 {
-    ledc_channel.duty       = (uint16_t)((powerLevel)*1024/100); 
-    ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, ledc_channel.duty);
-    ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
+    //float duty_cycle       = (uint16_t)((powerLevel)*1024/100); 
+    //mcpwm_set_signal_low(mcpwm_num, timer_num, MCPWM_OPR_A);
+    //mcpwm_set_duty(mcpwm_num, timer_num, MCPWM_OPR_A, powerLevel);
+    //mcpwm_set_duty_type(mcpwm_num, timer_num, MCPWM_OPR_A, MCPWM_DUTY_MODE_0);
+    //mcpwm_set_duty(mcpwm_num, timer_num, MCPWM_OPR_B, powerLevel);
+    //mcpwm_set_duty_type(mcpwm_num, timer_num, MCPWM_OPR_B, MCPWM_DUTY_MODE_1);
+    //mcpwm_deadtime_enable(mcpwm_num, timer_num, MCPWM_ACTIVE_HIGH_MODE, 1000,1000);
+    mcpwm_config_t  pwm_config;
+    pwm_config.frequency = 5000;    //frequency = 500Hz,
+    pwm_config.cmpr_a = powerLevel;    //duty cycle of PWMxA = 0
+    pwm_config.cmpr_b = powerLevel+10;    //duty cycle of PWMxb = 0
+    pwm_config.counter_mode = MCPWM_UP_COUNTER;
+    pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
+    mcpwm_init(mcpwm_num, timer_num, &pwm_config);
+    mcpwm_deadtime_enable(mcpwm_num, timer_num, MCPWM_BYPASS_FED, 200,200);
 }
 
-void ElectroStimulation::bioSignalController::setOutputHandlerPin(const gpio_num_t &outputHandlerPin)
+void ElectroStimulation::bioSignalControllerMCPWM::setOutputHandlerPin(const gpio_num_t &outputHandlerPin)
 {
     this->outputHandlerPin = outputHandlerPin;
     gpio_pad_select_gpio(this->outputHandlerPin);
     gpio_set_direction(this->outputHandlerPin, GPIO_MODE_OUTPUT); 
 }
 
-void ElectroStimulation::bioSignalController::addSignalBehavior(const std::string &signalBehaviorName, const double &signalBehavior)
+void ElectroStimulation::bioSignalControllerMCPWM::addSignalBehavior(const std::string &signalBehaviorName, const double &signalBehavior)
 {
     this->signalBehaviorHandler.emplace(signalBehaviorName, signalBehavior);
 }
 
-void ElectroStimulation::bioSignalController::removeSignalBehavior(const std::string &signalBehaviorName)
+void ElectroStimulation::bioSignalControllerMCPWM::removeSignalBehavior(const std::string &signalBehaviorName)
 {
     this->signalBehaviorHandler.erase (signalBehaviorName);
 }
 
-double ElectroStimulation::bioSignalController::getSignalBehavior(const std::string &signalBehavior) const
+double ElectroStimulation::bioSignalControllerMCPWM::getSignalBehavior(const std::string &signalBehavior) const
 {
     return this->signalBehaviorHandler.find(signalBehavior)->second;                        
 }
 
 void ElectroStimulation::burstController(void* pvParameter)
 {
-    bioSignalController signalHandler = *((bioSignalController*) pvParameter);  
-    ControlHandler::PID<double> pid("1.0,0.33,0.0");
-    pid.setLimits(60.0,0.0);
-    double reference = signalHandler.getSignalBehavior("ccLevel");
+    bioSignalControllerMCPWM signalHandler = *((bioSignalControllerMCPWM*) pvParameter);  
 
     while(1){
-        int y = 60*signalHandler.getFeedbackForPowerControl()/0.9;
-        signalHandler.setPowerLevel(pid.OutputControl(reference,y));
-        //signalHandler.setPowerLevel(signalHandler.getSignalBehavior("ccLevel"));
+        signalHandler.setPowerLevel(signalHandler.getSignalBehavior("ccLevel"));
         for(int i = 0; i<10; i++){ 
             gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
             ets_delay_us(signalHandler.getSignalBehavior("period"));
@@ -76,31 +80,20 @@ void ElectroStimulation::burstController(void* pvParameter)
 
 void ElectroStimulation::normalController(void* pvParameter)
 {
-    bioSignalController signalHandler = *((bioSignalController*) pvParameter);
-    ControlHandler::PID<double> pid("1.00,0.13,0.0");
-    pid.setLimits(0.0,60.0);
-    double reference = signalHandler.getSignalBehavior("ccLevel");
-    uint32_t time = (1000000/signalHandler.getSignalBehavior("freq"))-signalHandler.getSignalBehavior("period");
-    
+    bioSignalControllerMCPWM signalHandler = *((bioSignalControllerMCPWM*) pvParameter);
+
     while(1){
-        double y = 60*signalHandler.getFeedbackForPowerControl();
-        double u = pid.OutputControl(reference,y);
-        signalHandler.setPowerLevel(u);
-        //signalHandler.setPowerLevel(signalHandler.getSignalBehavior("ccLevel"));
-        for(uint_fast8_t i = 0; i < 10; ++i)
-        {
-            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
-            ets_delay_us(signalHandler.getSignalBehavior("period"));
-            gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
-            ets_delay_us(time);
-        }
-        //std::cout << reference << ", " << y << ", " << u << std::endl;
+        signalHandler.setPowerLevel(signalHandler.getSignalBehavior("ccLevel"));
+        gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 0);
+        ets_delay_us(signalHandler.getSignalBehavior("period"));
+        gpio_set_level((gpio_num_t) signalHandler.getOutputHandlerPin(), 1);
+        ets_delay_us((1000000/signalHandler.getSignalBehavior("freq"))-signalHandler.getSignalBehavior("period"));
     }
 }
 
 void ElectroStimulation::modulationController(void* pvParameter)
 {
-    bioSignalController signalHandler = *((bioSignalController*) pvParameter);
+    bioSignalControllerMCPWM signalHandler = *((bioSignalControllerMCPWM*) pvParameter);
     
     uint16_t time;
     
@@ -125,7 +118,7 @@ void ElectroStimulation::modulationController(void* pvParameter)
 
 void ElectroStimulation::sd1Controller(void* pvParameter)
 {
-    bioSignalController signalHandler = *((bioSignalController*) pvParameter);
+    bioSignalControllerMCPWM signalHandler = *((bioSignalControllerMCPWM*) pvParameter);
 
     uint16_t time, value, valDecay;
     double K = 4/50;
@@ -159,7 +152,7 @@ void ElectroStimulation::sd1Controller(void* pvParameter)
 
 void ElectroStimulation::sd2Controller(void* pvParameter)
 {
-    bioSignalController signalHandler = *((bioSignalController*) pvParameter);
+    bioSignalControllerMCPWM signalHandler = *((bioSignalControllerMCPWM*) pvParameter);
 
     uint16_t time, duty, value, valDecay, dutyDecay;
     

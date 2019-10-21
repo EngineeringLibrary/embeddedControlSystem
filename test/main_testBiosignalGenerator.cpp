@@ -45,13 +45,11 @@ void wifiCallback(Communication::Wifi &wifi1)
         // uint8_t pwr = msg[7];
 
         signal[ch] = new ElectroStimulation::bioSignalController;
-        signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], (adc1_channel_t) ch, 50000, 
-                                        (ledc_channel_t)ch, (ledc_timer_t)ch);
+        signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], 1000, (ledc_channel_t)ch, (ledc_timer_t)ch);
         signal[ch]->setOutputHandlerPin((gpio_num_t) modPin[ch]);
         signal[ch]->addSignalBehavior("freq", freq);
         signal[ch]->addSignalBehavior("period", period);
         signal[ch]->addSignalBehavior("ccLevel", pwr);
-        ets_delay_us(100);
 		
         switch(mod){
             case 0: xTaskCreatePinnedToCore(ElectroStimulation::burstController, "burst", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;

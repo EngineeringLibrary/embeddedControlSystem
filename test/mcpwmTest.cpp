@@ -6,17 +6,17 @@
 #include "driver/ledc.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "bioSignalGenerator.h"
+#include "bioSignalGeneratorMCPWM.h"
 #include "wifi/wifi.h"
 #include "serial.h"
 //#include "../test/test.h"
 #include "adxl345.h"
 
 static Communication::Wifi wifi; TaskHandle_t xHandle[4]; 
-ElectroStimulation::bioSignalController **signal;
-uint8_t levelPin[4] = {2, 16, 5, 19},
-          modPin[4] = {15, 4, 17, 18};
-adxl345 accel;
+ElectroStimulation::bioSignalControllerMCPWM **signal;
+uint8_t levelPin[2] = {2, 16},
+          modPin[1] = {18};
+adxl345 accel; 
 
 void wifiCallback(Communication::Wifi &wifi1)
 {
@@ -44,14 +44,12 @@ void wifiCallback(Communication::Wifi &wifi1)
 	    // uint16_t period = (msg[6] || (msg[5] << 8));
         // uint8_t pwr = msg[7];
 
-        signal[ch] = new ElectroStimulation::bioSignalController;
-        signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], (adc1_channel_t) ch, 50000, 
-                                        (ledc_channel_t)ch, (ledc_timer_t)ch);
+        signal[ch] = new ElectroStimulation::bioSignalControllerMCPWM;
+        signal[ch]->powerControllerInit((gpio_num_t)levelPin[0], (gpio_num_t)levelPin[1], 1000, MCPWM_UNIT_0, MCPWM_TIMER_0);
         signal[ch]->setOutputHandlerPin((gpio_num_t) modPin[ch]);
         signal[ch]->addSignalBehavior("freq", freq);
         signal[ch]->addSignalBehavior("period", period);
         signal[ch]->addSignalBehavior("ccLevel", pwr);
-        ets_delay_us(100);
 		
         switch(mod){
             case 0: xTaskCreatePinnedToCore(ElectroStimulation::burstController, "burst", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;
@@ -71,7 +69,7 @@ extern "C" void app_main()
 { 
     accel.init();
     //accel.calibrate();
-    signal = new ElectroStimulation::bioSignalController*[4]();
+    signal = new ElectroStimulation::bioSignalControllerMCPWM*[1]();
     wifi.connect();
     wifi >> wifiCallback;
 }
