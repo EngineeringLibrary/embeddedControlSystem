@@ -47,7 +47,7 @@ void wifiCallback(Communication::Wifi &wifi1)
         signal[ch] = new ElectroStimulation::bioSignalController;
         signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], (adc1_channel_t) ch, 50000, 
                                         (ledc_channel_t)ch, (ledc_timer_t)ch);
-        signal[ch]->setOutputHandlerPin((gpio_num_t) modPin[ch]);
+        signal[ch]->setOutputHandlerDirectPin((gpio_num_t) modPin[ch]);
         signal[ch]->addSignalBehavior("freq", freq);
         signal[ch]->addSignalBehavior("period", period);
         signal[ch]->addSignalBehavior("ccLevel", pwr);
@@ -55,7 +55,7 @@ void wifiCallback(Communication::Wifi &wifi1)
 		
         switch(mod){
             case 0: xTaskCreatePinnedToCore(ElectroStimulation::burstController, "burst", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;
-            case 1: xTaskCreatePinnedToCore(ElectroStimulation::normalController, "normal", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;
+            case 1: xTaskCreatePinnedToCore(ElectroStimulation::openLoopNormalController, "normal", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;
             case 2: xTaskCreatePinnedToCore(ElectroStimulation::modulationController, "modulation", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;
             case 3: xTaskCreatePinnedToCore(ElectroStimulation::sd1Controller, "sd1", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;
             case 4: xTaskCreatePinnedToCore(ElectroStimulation::sd2Controller, "sd2", 4*1024, signal[ch], 8, &xHandle[ch], 1); break;
