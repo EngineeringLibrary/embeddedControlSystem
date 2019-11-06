@@ -63,28 +63,28 @@ double ElectroStimulation::bioSignalController::getSignalBehavior(const std::str
 void ElectroStimulation::circuitTransferFunctionIdentification(void* pvParameter)
 {
     bioSignalController signalHandler = *((bioSignalController*) pvParameter);
-    double minLimit = 10, maxLimit = 20;
-    uint32_t time = (100);
-    ModelHandler::ARX<double> boost(1,1);
-    OptimizationHandler::RecursiveLeastSquare<double> rls(&boost); 
+    double minLimit = 40, maxLimit = 55;
+    uint32_t time = 100;
+    //ModelHandler::ARX<double> boost(1,1);
+    //OptimizationHandler::RecursiveLeastSquare<double> rls(&boost); 
     
     while(1){
-        for(unsigned i = 0; i < 1000; ++i)
+        for(unsigned i = 0; i < 100000; ++i)
         {
             for(unsigned i = 0; i < 10; ++i)
             {
-                signalHandler.setPowerLevel(minLimit);
+                //signalHandler.setPowerLevel(minLimit);
                 ets_delay_us(time);
-                rls.optimize(minLimit, signalHandler.getFeedbackForPowerControl());
+                //rls.optimize(minLimit, signalHandler.getFeedbackForPowerControl());
             }
             for(unsigned i = 0; i < 10; ++i)
             {
-                signalHandler.setPowerLevel(maxLimit);
+                //signalHandler.setPowerLevel(maxLimit);
                 ets_delay_us(time);
-                rls.optimize(minLimit, signalHandler.getFeedbackForPowerControl());
+                //rls.optimize(minLimit, signalHandler.getFeedbackForPowerControl());
             }
         }
-        std::cout << rls.print();
+       // std::cout << rls.print();
     }
 }
 
