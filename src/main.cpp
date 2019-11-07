@@ -92,11 +92,10 @@ extern "C" void app_main()
                                         (ledc_channel_t)ch, (ledc_timer_t)ch);
     // xTaskCreatePinnedToCore(ElectroStimulation::circuitTransferFunctionIdentification, "Identification", 4*1024, signal[ch], 8, &xHandle[ch], 0);
     double minLimit = 40, maxLimit = 55;
-    uint32_t time = 1;
     ModelHandler::ARX<double> boost(1,1);
     OptimizationHandler::RecursiveLeastSquare<double> rls(&boost);
     //LinAlg::Matrix<double> inOut(101,2); 
-    double *in = new double[200], *out = new double[200];
+    double *in = new double[2000], *out = new double[2000];
     
     
     while(1){
@@ -104,21 +103,23 @@ extern "C" void app_main()
         unsigned k = 0;
         for(unsigned j = 0; j < 10; ++j)
         {
-            identificacao.setPowerLevel(minLimit);
-            for(unsigned i = 0; i < 10; ++i)
+            //identificacao.setPowerLevel(minLimit);
+            for(unsigned i = 0; i < 100; ++i)
             {
                 //ets_delay_us(time);
-                in[k] = minLimit; 
-                out[k] = identificacao.getFeedbackForPowerControl();
-                k++;
+                //in[k] = minLimit; 
+                //out[k] = 
+                identificacao.getFeedbackForPowerControl();
+                //k++;
             }
             identificacao.setPowerLevel(maxLimit);
-            for(unsigned i = 0; i < 10; ++i)
+            for(unsigned i = 0; i < 100; ++i)
             {
                 //ets_delay_us(time);
-                in[k] = maxLimit; 
-                out[k] = identificacao.getFeedbackForPowerControl();
-                k++;
+                //in[k] = maxLimit; 
+                //out[k] = 
+                identificacao.getFeedbackForPowerControl();
+                //k++;
             }
         }
          t = esp_timer_get_time() - t;
@@ -127,7 +128,7 @@ extern "C" void app_main()
             rls.optimize(in[j], out[j]);
         }
        
-        std::cout << "\ntempo ="<< ((float)t);
+        std::cout << "\ntempo ="<< ((float)t) << "\n primeiro out: " << out[0] << "\n";
 
     }
     //vTaskDelay(100000/ portTICK_PERIOD_MS);

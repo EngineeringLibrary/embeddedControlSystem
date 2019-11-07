@@ -3,5 +3,28 @@
         "PATH": "C:\\Users\\andre.dantas\\.platformio\\penv\\Scripts;C:\\Users\\andre.dantas\\.platformio\\penv;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\Users\\andre.dantas\\AppData\\Local\\Android\\Sdk\\bin;C:\\Users\\andre.dantas\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\andre.dantas\\AppData\\Local\\Programs\\Git\\cmd;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\Users\\andre.dantas\\AppData\\Local\\Android\\Sdk\\bin;C:\\Users\\andre.dantas\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\andre.dantas\\AppData\\Local\\Programs\\Git\\cmd",
         "PLATFORMIO_CALLER": "vscode"
     },
-    "python.pythonPath": "C:\\Users\\andre.dantas\\.platformio\\penv\\Scripts\\python.exe"
+    "python.pythonPath": "C:\\Users\\andre.dantas\\.platformio\\penv\\Scripts\\python.exe",
+    "files.associations": {
+        "esp_types.h": "c",
+        "ets_sys.h": "c",
+        "esp_log.h": "c",
+        "rtc_io_reg.h": "c",
+        "rtc_io_struct.h": "c",
+        "sens_struct.h": "c",
+        "sens_reg.h": "c",
+        "rtc_cntl_struct.h": "c",
+        "rtc_cntl_reg.h": "c",
+        "syscon_reg.h": "c",
+        "syscon_struct.h": "c",
+        "rtc.h": "c",
+        "touch_pad.h": "c",
+        "rtc_io.h": "c",
+        "adc.h": "c",
+        "dac.h": "c",
+        "freertos.h": "c",
+        "esp_intr_alloc.h": "c",
+        "rtc_cntl.h": "c",
+        "gpio.h": "c",
+        "esp_err.h": "c"
+    }
 }

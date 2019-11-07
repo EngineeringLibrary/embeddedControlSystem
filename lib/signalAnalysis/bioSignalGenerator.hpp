@@ -5,8 +5,19 @@ void ElectroStimulation::bioSignalController::powerControllerInit(const gpio_num
     gpio_pad_select_gpio((gpio_num_t)pin);
     gpio_set_direction((gpio_num_t)pin, GPIO_MODE_OUTPUT); 
 
-    adc1_config_width(ADC_WIDTH_BIT_12);
+    adc1_config_width(ADC_WIDTH_BIT_9);
     adc1_config_channel_atten(feedbackPin,ADC_ATTEN_DB_0);
+    this->feedbackPin = feedbackPin;
+    adc_set_clk_div(2);
+    adc1_get_raw(feedbackPin);
+    
+    SENS.sar_read_ctrl.sar1_dig_force = false;
+    SENS.sar_meas_start1.meas1_start_force = false;
+    SENS.sar_meas_start1.sar1_en_pad_force = false;
+    SENS.sar_touch_ctrl1.xpd_hall_force = false;
+    SENS.sar_touch_ctrl1.hall_phase_force = false;
+    
+    //adc_value = adc_convert( ADC_UNIT_1, channel );
 
     ledc_timer.duty_resolution = LEDC_TIMER_10_BIT;
     ledc_timer.freq_hz = freq;
