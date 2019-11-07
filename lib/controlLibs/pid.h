@@ -1,7 +1,7 @@
 #ifndef __PID_H_INCLUDED
 #define __PID_H_INCLUDED
 
-#include "matrix.h"
+#include "./LinAlg/matrix.h"
 
 namespace ControlHandler{
     template <typename Type>
