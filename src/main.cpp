@@ -103,23 +103,21 @@ extern "C" void app_main()
         unsigned k = 0;
         for(unsigned j = 0; j < 10; ++j)
         {
-            //identificacao.setPowerLevel(minLimit);
+            identificacao.setPowerLevel(minLimit);
             for(unsigned i = 0; i < 100; ++i)
             {
                 //ets_delay_us(time);
-                //in[k] = minLimit; 
-                //out[k] = 
-                identificacao.getFeedbackForPowerControl();
-                //k++;
+                in[k] = minLimit; 
+                out[k] = identificacao.getFeedbackForPowerControl();
+                k++;
             }
             identificacao.setPowerLevel(maxLimit);
             for(unsigned i = 0; i < 100; ++i)
             {
                 //ets_delay_us(time);
-                //in[k] = maxLimit; 
-                //out[k] = 
-                identificacao.getFeedbackForPowerControl();
-                //k++;
+                in[k] = maxLimit; 
+                out[k] = identificacao.getFeedbackForPowerControl();
+                k++;
             }
         }
          t = esp_timer_get_time() - t;
