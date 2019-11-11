@@ -37,7 +37,7 @@ namespace ElectroStimulation{
         void addSignalBehavior(const std::string &signalBehaviorName, const double &signalBehavior);
         void removeSignalBehavior(const std::string &signalBehaviorName);
         double getSignalBehavior(const std::string &signalBehavior) const;
-        double getFeedbackForPowerControl() {SENS.sar_meas_start1.sar1_en_pad = (1 << ADC1_CHANNEL_0); // only one channel is selected
+        uint32_t getFeedbackForPowerControl() {SENS.sar_meas_start1.sar1_en_pad = (1 << ADC1_CHANNEL_0); // only one channel is selected
                                              while (SENS.sar_slave_addr1.meas_status != 0);
                                                     SENS.sar_meas_start1.meas1_start_sar = 0;
                                                     SENS.sar_meas_start1.meas1_start_sar = 1;
@@ -62,6 +62,7 @@ namespace ElectroStimulation{
     static void modulationController(void*);
     static void sd1Controller(void*);
     static void sd2Controller(void*);
+    void IRAM_ATTR controlLoop(void*);
 }
 
 #include "bioSignalGenerator.hpp"

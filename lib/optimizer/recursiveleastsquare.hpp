@@ -7,6 +7,14 @@ OptimizationHandler::RecursiveLeastSquare<Type>::RecursiveLeastSquare(ModelHandl
                                                      Type p0,
                                                      Type lambda)
 {
+    this->initialization(model,p0,lambda);
+}
+
+template <class Type>
+void OptimizationHandler::RecursiveLeastSquare<Type>::initialization(ModelHandler::Model<Type> *model,
+                                                     Type p0,
+                                                     Type lambda)
+{
     srand(time(NULL));
     this->p0     = p0;
     this->model  = model;

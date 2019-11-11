@@ -11,14 +11,14 @@ namespace ControlHandler{
         bool checkUpLim, checkLowLim;
         Type Error, pastError, integralError, derivativeError, Step, kp, ki, kd, upperLimit, lowerLimit, PIDout;
 
-        void errorLimitation();
+        inline void errorLimitation();
 
-        void intError();
-        void difError();
+        inline void intError();
+        inline void difError();
 
     public:
         PID();
-        PID(const LinAlg::Matrix<Type> &PIDsParameters);
+        PID(const LinAlg::Matrix<Type> &PIDsParameters, const Type &Step = 1);
 
         Type getSampleTime() const {return this->Step;}
         Type getErrorValue() const {return this->Error;}

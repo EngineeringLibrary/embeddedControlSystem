@@ -138,7 +138,7 @@ void ElectroStimulation::openLoopNormalController(void* pvParameter)
     }
 }
 
-void ElectroStimulation::closedLoopNormalController(void* pvParameter)
+void ElectroStimulation::closedLoopNormalController(void* pvParameter)//verificar a estabilidade para vários canais, se pvParameter é diferente
 {
     bioSignalController signalHandler = *((bioSignalController*) pvParameter);
     ControlHandler::PID<double> pid("1.00,0.13,0.0");
