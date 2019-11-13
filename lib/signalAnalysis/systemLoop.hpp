@@ -129,3 +129,38 @@ void ControlHandler::squaredWaveExitationLoop(void* pvParameter)
 
     while(1);
 }
+
+void ControlHandler::relayExitationLoop(void* pvParameter)
+{
+    ControlHandler::systemLoopHandler<uint32_t> *idStructure = ((ControlHandler::systemLoopHandler<uint32_t>*) pvParameter);
+    uint32_t minLimit = 10, maxLimit = 80, lastInputValue = minLimit;
+    idStructure->in = new uint32_t[2000]; idStructure->out = new uint32_t[2000];
+    idStructure->iterator = 0;
+    int32_t e; uint32_t tolerance = 100;
+
+    for(unsigned j = 0; j < 10; ++j)
+    {
+        e = idStructure->reference - idStructure->signal->getFeedbackForPowerControl();
+        if(abs(e) > tolerance && e > 0) idStructure->inputSignal = maxLimit;
+        if(abs(e) > tolerance && e < 0) idStructure->inputSignal = minLimit;
+        if(abs(e) < tolerance && e < 0) idStructure->inputSignal = minLimit;
+        if(abs(e) < tolerance && e < 0) idStructure->inputSignal = minLimit;
+
+        idStructure->reference = minLimit;
+    }
+
+    std::cout << "entrou 2\n";
+
+
+    std::stringstream ss; ss << std::setw(2*5+1) << std::setprecision(5) << std::fixed << "\nEntrada | Saida \n";
+    std::cout << "entrou 3\n";
+    for(unsigned j = 0; j < 2000; ++j)
+    {
+        ss << idStructure->in[j] << "   " << idStructure->out[j] << "\n";
+    }
+    std::cout << "entrou 4\n";
+    idStructure->wifi << ss.str();
+    std::cout << "entrou 5\n";
+
+    while(1);
+}

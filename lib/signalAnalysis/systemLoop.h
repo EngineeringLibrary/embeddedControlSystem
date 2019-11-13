@@ -20,7 +20,7 @@ namespace ControlHandler{
         
         void startLoop(void (*loopFunction2Call)(void*));
 
-        volatile uint32_t reference;
+        volatile uint32_t reference, inputSignal;
         ControlHandler::PID<Type> *pid;
         ModelHandler::ARX<Type> *boost;
         ElectroStimulation::bioSignalController *signal;
@@ -43,6 +43,8 @@ namespace ControlHandler{
     static void closedLoopTwoFaseNormalController(void*){}
 
     static void squaredWaveExitationLoop(void*);
+
+    static void relayExitationLoop(void*);
     
     //template <typename Type>
     void IRAM_ATTR systemControlLoop(void *para);
