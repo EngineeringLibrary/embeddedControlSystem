@@ -3,6 +3,8 @@
 template <typename Type>
 ControlHandler::systemLoopHandler<Type>::systemLoopHandler(){
     iterator = 0;
+    in = NULL;
+    out = NULL;
     reference           = 0;
     timer_idx           = TIMER_0;
     timer_group         = TIMER_GROUP_0; /*!< Test on timer group 0 */
@@ -87,6 +89,7 @@ void IRAM_ATTR ControlHandler::systemExitationForIdentificationLoop(void *para){
         TIMERG0.hw_timer[timer_idx].config.alarm_en = 1;
 
         if(idStructure->iterator < 2000 && idStructure->in && idStructure->out){
+            idStructure->signal->setPowerLevel(idStructure->reference);
             idStructure->in[idStructure->iterator] = idStructure->reference;
             idStructure->out[idStructure->iterator] = idStructure->signal->getFeedbackForPowerControl();
         
@@ -110,6 +113,19 @@ void ControlHandler::squaredWaveExitationLoop(void* pvParameter)
         idStructure->reference = maxLimit;
         ets_delay_us(500000);
     }
-    
+
+    std::cout << "entrou 2\n";
+
+
+    std::stringstream ss; ss << std::setw(2*5+1) << std::setprecision(5) << std::fixed << "\nEntrada | Saida \n";
+    std::cout << "entrou 3\n";
+    for(unsigned j = 0; j < 2000; ++j)
+    {
+        ss << idStructure->in[j] << "   " << idStructure->out[j] << "\n";
+    }
+    std::cout << "entrou 4\n";
+    idStructure->wifi << ss.str();
+    std::cout << "entrou 5\n";
+
     while(1);
 }

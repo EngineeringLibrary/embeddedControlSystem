@@ -31,7 +31,8 @@ namespace ControlHandler{
         volatile float TIMER_SCALE, TIMER_FINE_ADJ, TIMER_INTERVAL0_SEC;
         Type *in, *out;
         volatile uint32_t iterator;
-
+        Communication::Wifi wifi;
+        TaskHandle_t *xHandle;
     };
     
 

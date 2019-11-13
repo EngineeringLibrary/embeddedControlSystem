@@ -122,17 +122,17 @@ void ElectroStimulation::burstController(void* pvParameter)
 
 void ElectroStimulation::openLoopNormalController(void* pvParameter)
 {
-    bioSignalController signalHandler = *((bioSignalController*) pvParameter);
-    double reference = signalHandler.getSignalBehavior("ccLevel");
-    uint32_t time = (1000000/signalHandler.getSignalBehavior("freq"))-signalHandler.getSignalBehavior("period");
+    bioSignalController *signalHandler = ((bioSignalController*) pvParameter);
+    double reference = signalHandler->getSignalBehavior("ccLevel");
+    uint32_t time = (1000000/signalHandler->getSignalBehavior("freq"))-signalHandler->getSignalBehavior("period");
     
     while(1){
-        signalHandler.setPowerLevel(reference);
+        signalHandler->setPowerLevel(reference);
         for(uint_fast8_t i = 0; i < 10; ++i)
         {
-            gpio_set_level(signalHandler.getOutputHandlerDirectPin(), 0);
-            ets_delay_us(signalHandler.getSignalBehavior("period"));
-            gpio_set_level(signalHandler.getOutputHandlerDirectPin(), 1);
+            gpio_set_level(signalHandler->getOutputHandlerDirectPin(), 0);
+            ets_delay_us(signalHandler->getSignalBehavior("period"));
+            gpio_set_level(signalHandler->getOutputHandlerDirectPin(), 1);
             ets_delay_us(time);
         }
     }

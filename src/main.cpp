@@ -1,99 +1,81 @@
 #include <iostream>
-#include <iomanip>
 #include <time.h>
 #include "esp_system.h"
 #include "rom/ets_sys.h"
 #include "driver/ledc.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "bioSignalGenerator.h"
 #include "wifi/wifi.h"
 #include "serial.h"
-#include <time.h>
 //#include "../test/test.h"
 #include "adxl345.h"
-#include "systemLoop.h"
 
 static Communication::Wifi wifi; TaskHandle_t xHandle[4]; 
 ElectroStimulation::bioSignalController **signal;
-uint8_t levelPin[4] = {2, 16, 5, 19},
-          modPin[4] = {15, 4, 17, 18};
-adxl345 accel;
+uint8_t levelPin[10] = {2, 0, 16, 5, 19, 22, 32, 25, 27, 12},
+          modPin[10] = {15, 4, 17, 18, 21, 23, 33, 26, 14, 13};
+adxl345 accel; bool flag;
 
 void wifiCallback(Communication::Wifi &wifi1)
 {
-	uint8_t ch = 0;
-    ControlHandler::systemLoopHandler<uint32_t> *idStructure = new ControlHandler::systemLoopHandler<uint32_t>();
-    idStructure->pid = new ControlHandler::PID<uint32_t>("100,33,0");
-    idStructure->pid->setLimits(60,0.0);
-    idStructure->signal = new ElectroStimulation::bioSignalController;
-    idStructure->signal->powerControllerInit((gpio_num_t) levelPin[ch], (adc1_channel_t) ch, 10000, 
-                                           (ledc_channel_t)ch, (ledc_timer_t)ch);
-    idStructure->boost = new ModelHandler::ARX<uint32_t>(1,1);
-    idStructure->rls   = new OptimizationHandler::RecursiveLeastSquare<uint32_t>(idStructure->boost); 
-    idStructure->startLoop(ControlHandler::systemExitationForIdentificationLoop);   
+	std::string msg = wifi1.getData();
+    uint8_t cmd = msg[0] - 1;
+	uint8_t ch = msg[1] - 1; 
 
-    xTaskCreatePinnedToCore(ControlHandler::squaredWaveExitationLoop, "squaredWaveExitationLoop", 8*1024, idStructure, 8, &xHandle[ch], 0);
-    vTaskDelay( 10000 / portTICK_PERIOD_MS );
-    vTaskDelete(xHandle[ch]);
+    uint8_t mod = msg[2] - 1;
+    uint16_t freq = (((msg[3] - 1) << 8) | (msg[4] - 1));
+    uint16_t period = (((msg[5] - 1) << 8) | (msg[6] - 1));
+    uint8_t pwr = msg[7] - 1;
+	
+    std::cout << (uint16_t)cmd << "," << (uint16_t)ch << "," << (uint16_t)mod << "," << (uint16_t)freq << "," << (uint16_t)period << "," << (uint16_t)pwr << "\n";
 
-    std::stringstream ss; ss << std::setw(2*5+1) << std::setprecision(5) << std::fixed << "\nEntrada | Saida \n";
-    for(unsigned j = 0; j < 2000; ++j)
-    {
-        ss << idStructure->in[j] << "   " << idStructure->out[j] << "\n";
-    }
-    wifi << ss.str();
+	if(signal[ch]&&!cmd){
+		vTaskDelete(xHandle[ch]);
+	    delete signal[ch];
+        signal[ch] = NULL;
+	}
+	
+	if(cmd)
+	{
+        std::cout << "Entrou antes\n";
+        if(!flag){
+            std::cout << "Entrou 1\n";
+            signal[ch] = new ElectroStimulation::bioSignalController;
+            std::cout << "Entrou 2\n";
+            signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], (adc1_channel_t) ch, 10000, 
+                                        (ledc_channel_t)ch, (ledc_timer_t)ch);
+            signal[ch]->setOutputHandlerDirectPin((gpio_num_t) modPin[ch]);
+            signal[ch]->addSignalBehavior("freq", freq);
+            signal[ch]->addSignalBehavior("period", period);
+            signal[ch]->addSignalBehavior("ccLevel", pwr);
+            std::cout << "Entrou 3\n";
+            flag = 1;
+        }
+        std::cout << "Entrou 4\n";
+        signal[ch]->setPowerLevel(pwr);
+        std::cout << "Entrou 5\n";
+        
+		
+        //switch(mod){
+        //    case 0: xTaskCreatePinnedToCore(ElectroStimulation::burstController, "burst", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
+        //    case 1: xTaskCreatePinnedToCore(ElectroStimulation::openLoopNormalController, "normal", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
+        //    case 2: xTaskCreatePinnedToCore(ElectroStimulation::modulationController, "modulation", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
+        //    case 3: xTaskCreatePinnedToCore(ElectroStimulation::sd1Controller, "sd1", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
+        //    case 4: xTaskCreatePinnedToCore(ElectroStimulation::sd2Controller, "sd2", 2*1024, signal[ch], 8, &xHandle[ch], 1); break;
+        //}
+	}
+    std::cout << "saiu\n";
+    //accel.read();
+    //std::cout << "Entrou 2\n";
+    //std::stringstream ss; ss << accel.get_x();
+    //wifi << ss.str();
 }
-
-
-
-int64_t xx_time_get_time() {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return (tv.tv_sec * 1000LL + (tv.tv_usec / 1000LL));
-}
-
 
 extern "C" void app_main()
 { 
-    
-    //accel.init();
-    ////accel.calibrate();
-    //signal = new ElectroStimulation::bioSignalController*[4]();
+    accel.init();
+    signal = new ElectroStimulation::bioSignalController*[4]();
     wifi.connect();
     wifi >> wifiCallback;
-    
-    
-    
-    //uint32_t minLimit = 40, maxLimit = 55;
-    //ModelHandler::ARX<uint32_t> boost(1,1);
-    //LinAlg::Matrix<double> inOut(101,2); 
-    //uint32_t *in = new uint32_t[2000], *out = new uint32_t[2000];
-    
-    
-    //while(1){
-        //ets_delay_us(1000000);
-        //uint64_t t = esp_timer_get_time();
-        //for(unsigned j = 0; j < 10; ++j)
-       // {
-        //    //identificacao.setPowerLevel(minLimit);
-       //     for(unsigned i = 0; i < 100; ++i)
-       //     {
-       //         identificacao.setPowerLevel(pid.OutputControl(minLimit,identificacao.getFeedbackForPowerControl()));
-        //    }
-        //    //identificacao.setPowerLevel(maxLimit);
-        //    for(unsigned i = 0; i < 100; ++i)
-         //   {
-         //       identificacao.setPowerLevel(pid.OutputControl(maxLimit,identificacao.getFeedbackForPowerControl()));
-         //   }
-        //}
-        //t = esp_timer_get_time() - t;
-        //for(unsigned j = 0; j < 200; ++j)
-        //{
-        //    rls.optimize(in[j], out[j]);
-        //}
-       
-        //std::cout << "\ntempo ="<< ((float)t) << "\n primeiro out: " << out[0] << "\n";
-
-    //}
 }
-
-// algumas considerações a serem realizadas. O tempo mínimo que consegui para leitura do ADC com o PID foi de 12,25us, e isso parece ser dependente do esp utilizado.

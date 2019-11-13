@@ -44,7 +44,7 @@ void wifiCallback(Communication::Wifi &wifi1)
         // uint8_t pwr = msg[7];
 
         signal[ch] = new ElectroStimulation::bioSignalController;
-        signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], 50000, (ledc_channel_t)ch);
+        signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], 10000, (ledc_channel_t)ch);
         signal[ch]->setOutputHandlerPin((gpio_num_t) modPin[ch]);
         signal[ch]->addSignalBehavior("freq", freq);
         signal[ch]->addSignalBehavior("period", period);
