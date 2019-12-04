@@ -19,18 +19,19 @@ namespace ControlHandler{
         systemLoopHandler();
         
         void startLoop(void (*loopFunction2Call)(void*));
+        void stopLoop();
 
-        volatile uint32_t reference, inputSignal;
-        ControlHandler::PID<Type> *pid;
-        ModelHandler::ARX<Type> *boost;
-        ElectroStimulation::bioSignalController *signal;
-        OptimizationHandler::RecursiveLeastSquare<Type> *rls;
+        volatile uint32_t reference, inputSignal, minLimit, maxLimit, channel, tolerance;
+        ControlHandler::PID<Type> **pid;
+        ModelHandler::ARX<double> **boost;
+        ElectroStimulation::bioSignalController **signal;
+        OptimizationHandler::RecursiveLeastSquare<double> **rls;
         volatile timer_group_t timer_group;
         volatile timer_idx_t timer_idx;
         timer_config_t config;
         volatile float TIMER_SCALE, TIMER_FINE_ADJ, TIMER_INTERVAL0_SEC;
         Type *in, *out;
-        volatile uint32_t iterator;
+        volatile uint32_t iterator, maxIterator;
         Communication::Wifi wifi;
         TaskHandle_t *xHandle;
     };
@@ -45,11 +46,17 @@ namespace ControlHandler{
     static void squaredWaveExitationLoop(void*);
 
     static void relayExitationLoop(void*);
+
+    static void closedLoopTwoFaseNormalController(void*);
     
     //template <typename Type>
     void IRAM_ATTR systemControlLoop(void *para);
 
     void IRAM_ATTR systemExitationForIdentificationLoop(void *para);
+
+    void IRAM_ATTR systemExitationforRelayLoop(void *para);
+
+    void IRAM_ATTR controlLoop(void *para);
 
 }
 
