@@ -1,0 +1,29 @@
+#ifndef OPTMIZER_H
+#define OPTMIZER_H
+
+#ifndef modeltest
+    #include "headers/model/model.h"
+#else
+    #include "../../Impressora3d/headers/model/model.h"
+#endif
+
+template <typename Type>
+class Optmizer
+{
+public:
+    Optmizer();
+
+    void   setmodel(ModelHandler::Model<Type> *model){this->model = model;}
+    void   setConstraints(LinAlg::Matrix<Type> constraints) {this->constraints = constraints;}
+
+    ModelHandler::Model<Type> *getmodel()    {return this->model;}
+    LinAlg::Matrix<Type> getConstraints()    {return this->constraints;}
+
+    virtual void   print() = 0;
+    virtual void   optimize() = 0;
+protected:
+    LinAlg::Matrix<Type> optimizedValue, constraints;
+    ModelHandler::Model<Type> *model;
+};
+
+#endif // OPTMIZER_H

@@ -1,0 +1,42 @@
+#ifndef RECURSIVELEASTSQUARE_H
+#define RECURSIVELEASTSQUARE_H
+
+#ifndef modeltest
+    #include "headers/optimizer/optmizer.h"
+#else
+    #include "../../Impressora3d/headers/optimizer/optmizer.h"
+#endif
+
+namespace OptimizationHandler {
+    template <class Type>
+    class RecursiveLeastSquare: public Optimization<Type>
+    {
+    public:
+        RecursiveLeastSquare(ModelHandler::Model<Type> *model,
+                             Type p0 = 1e5,
+                             Type lambda = 1);
+
+        void Optimize();
+
+    private:
+        bool firstTimeFlag;
+        Type p0, lambda;
+        LinAlg::Matrix<Type> P, K, E, Input, Output;
+
+        void Iteration();
+    };
+}
+
+#ifndef modeltest
+    #include "headers/optimizer/linear_optimizer/unconstrained_optimizer/recursiveLeastSquare.h"
+#else
+    #include "../../Impressora3d/headers/optimizer/linear_optimizer/unconstrained_optimizer/recursiveLeastSquare.h"
+#endif
+
+#ifdef testModel
+    #include "../../../src/optimizationLibs/recursiveleastsquare.hpp"
+#else
+    #include "SistemasdeControle/src/optimizationLibs/recursiveleastsquare.hpp"
+#endif
+
+#endif // RECURSIVELEASTSQUARE_H

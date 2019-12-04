@@ -1,0 +1,474 @@
+/****************************************************************************
+** Meta object code from reading C++ file 'tst_matrixtest.cpp'
+**
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.12.6)
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+#include <QtCore/qbytearray.h>
+#include <QtCore/qmetatype.h>
+#if !defined(Q_MOC_OUTPUT_REVISION)
+#error "The header file 'tst_matrixtest.cpp' doesn't include <QObject>."
+#elif Q_MOC_OUTPUT_REVISION != 67
+#error "This file was generated using the moc from 5.12.6. It"
+#error "cannot be used with the include files from this version of Qt."
+#error "(The moc has changed too much.)"
+#endif
+
+QT_BEGIN_MOC_NAMESPACE
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_DEPRECATED
+struct qt_meta_stringdata_MatrixTest_t {
+    QByteArrayData data[76];
+    char stringdata0[2270];
+};
+#define QT_MOC_LITERAL(idx, ofs, len) \
+    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
+    qptrdiff(offsetof(qt_meta_stringdata_MatrixTest_t, stringdata0) + ofs \
+        - idx * sizeof(QByteArrayData)) \
+    )
+static const qt_meta_stringdata_MatrixTest_t qt_meta_stringdata_MatrixTest = {
+    {
+QT_MOC_LITERAL(0, 0, 10), // "MatrixTest"
+QT_MOC_LITERAL(1, 11, 24), // "constructorMatrixTypeInt"
+QT_MOC_LITERAL(2, 36, 0), // ""
+QT_MOC_LITERAL(3, 37, 25), // "constructorMatrixTypeChar"
+QT_MOC_LITERAL(4, 63, 26), // "constructorMatrixTypeShort"
+QT_MOC_LITERAL(5, 90, 26), // "constructorMatrixTypeFloat"
+QT_MOC_LITERAL(6, 117, 31), // "constructorMatrixTypeLongDouble"
+QT_MOC_LITERAL(7, 149, 27), // "constructorMatrixTypeDouble"
+QT_MOC_LITERAL(8, 177, 37), // "constructorMatrixTypeCStringA..."
+QT_MOC_LITERAL(9, 215, 36), // "constructorMatrixTypeStringAn..."
+QT_MOC_LITERAL(10, 252, 32), // "constructorSizedVoidMatrixDouble"
+QT_MOC_LITERAL(11, 285, 27), // "constructorNULLMatrixDouble"
+QT_MOC_LITERAL(12, 313, 21), // "copyconstructorDouble"
+QT_MOC_LITERAL(13, 335, 36), // "copyconstructorOtherTypeDoubl..."
+QT_MOC_LITERAL(14, 372, 16), // "destructorDouble"
+QT_MOC_LITERAL(15, 389, 24), // "removeRowDoubleFirstTest"
+QT_MOC_LITERAL(16, 414, 25), // "removeRowDoubleSecondTest"
+QT_MOC_LITERAL(17, 440, 24), // "removeRowDoubleThirdTest"
+QT_MOC_LITERAL(18, 465, 27), // "removeColumnDoubleFirstTest"
+QT_MOC_LITERAL(19, 493, 28), // "removeColumnDoubleSecondTest"
+QT_MOC_LITERAL(20, 522, 27), // "removeColumnDoubleThirdTest"
+QT_MOC_LITERAL(21, 550, 21), // "getNumberOfRowsDouble"
+QT_MOC_LITERAL(22, 572, 24), // "getNumberOfColumnsDouble"
+QT_MOC_LITERAL(23, 597, 12), // "getRowDouble"
+QT_MOC_LITERAL(24, 610, 15), // "getColumnDouble"
+QT_MOC_LITERAL(25, 626, 12), // "lengthDouble"
+QT_MOC_LITERAL(26, 639, 10), // "sizeDouble"
+QT_MOC_LITERAL(27, 650, 12), // "isNullDouble"
+QT_MOC_LITERAL(28, 663, 14), // "isSquareDouble"
+QT_MOC_LITERAL(29, 678, 41), // "operatorParenthesisInputTwoUn..."
+QT_MOC_LITERAL(30, 720, 52), // "operatorParenthesisInputTwoUn..."
+QT_MOC_LITERAL(31, 773, 37), // "operatorAtributionDoubleRetur..."
+QT_MOC_LITERAL(32, 811, 39), // "operatorAtributionDoubleRetur..."
+QT_MOC_LITERAL(33, 851, 36), // "operatorAtributionDoubleRetur..."
+QT_MOC_LITERAL(34, 888, 38), // "operatorAtributionDoubleRetur..."
+QT_MOC_LITERAL(35, 927, 40), // "operatorAtributionDoubleRetur..."
+QT_MOC_LITERAL(36, 968, 42), // "operatorAtributionDoubleRetur..."
+QT_MOC_LITERAL(37, 1011, 34), // "operatorSumAccumulatorScalarD..."
+QT_MOC_LITERAL(38, 1046, 34), // "operatorSumAccumulatorMatrixD..."
+QT_MOC_LITERAL(39, 1081, 42), // "operatorSubtractionAccumulato..."
+QT_MOC_LITERAL(40, 1124, 42), // "operatorSubtractionAccumulato..."
+QT_MOC_LITERAL(41, 1167, 45), // "operatorMultiplicationAccumul..."
+QT_MOC_LITERAL(42, 1213, 45), // "operatorMultiplicationAccumul..."
+QT_MOC_LITERAL(43, 1259, 39), // "operatorDivisionAccumulatorSc..."
+QT_MOC_LITERAL(44, 1299, 43), // "horizontalConcatenationOperat..."
+QT_MOC_LITERAL(45, 1343, 43), // "horizontalConcatenationOperat..."
+QT_MOC_LITERAL(46, 1387, 41), // "verticalConcatenationOperator..."
+QT_MOC_LITERAL(47, 1429, 41), // "verticalConcatenationOperator..."
+QT_MOC_LITERAL(48, 1471, 25), // "bufferOperatorDoubleCase1"
+QT_MOC_LITERAL(49, 1497, 25), // "bufferOperatorDoubleCase2"
+QT_MOC_LITERAL(50, 1523, 25), // "bufferOperatorDoubleCase3"
+QT_MOC_LITERAL(51, 1549, 25), // "bufferOperatorDoubleCase4"
+QT_MOC_LITERAL(52, 1575, 25), // "bufferOperatorDoubleCase5"
+QT_MOC_LITERAL(53, 1601, 25), // "bufferOperatorDoubleCase6"
+QT_MOC_LITERAL(54, 1627, 25), // "bufferOperatorDoubleCase7"
+QT_MOC_LITERAL(55, 1653, 25), // "bufferOperatorDoubleCase8"
+QT_MOC_LITERAL(56, 1679, 25), // "bufferOperatorDoubleCase9"
+QT_MOC_LITERAL(57, 1705, 26), // "bufferOperatorDoubleCase10"
+QT_MOC_LITERAL(58, 1732, 29), // "operatorSumMatrixScalarDouble"
+QT_MOC_LITERAL(59, 1762, 29), // "operatorSumScalarMatrixDouble"
+QT_MOC_LITERAL(60, 1792, 29), // "operatorSumMatrixMatrixDouble"
+QT_MOC_LITERAL(61, 1822, 37), // "operatorSubtractionMatrixScal..."
+QT_MOC_LITERAL(62, 1860, 37), // "operatorSubtractionScalarMatr..."
+QT_MOC_LITERAL(63, 1898, 37), // "operatorSubtractionMatrixMatr..."
+QT_MOC_LITERAL(64, 1936, 40), // "operatorMultiplicationMatrixS..."
+QT_MOC_LITERAL(65, 1977, 40), // "operatorMultiplicationScalarM..."
+QT_MOC_LITERAL(66, 2018, 40), // "operatorMultiplicationMatrixM..."
+QT_MOC_LITERAL(67, 2059, 34), // "operatorDivisionMatrixScalarD..."
+QT_MOC_LITERAL(68, 2094, 28), // "operatorNegativeMatrixDouble"
+QT_MOC_LITERAL(69, 2123, 29), // "operatorTransposeMatrixDouble"
+QT_MOC_LITERAL(70, 2153, 17), // "zerosMatrixDouble"
+QT_MOC_LITERAL(71, 2171, 20), // "identityMatrixDouble"
+QT_MOC_LITERAL(72, 2192, 16), // "onesMatrixDouble"
+QT_MOC_LITERAL(73, 2209, 10), // "LineVector"
+QT_MOC_LITERAL(74, 2220, 24), // "operatorBufferStringShow"
+QT_MOC_LITERAL(75, 2245, 24) // "operatorBufferStringBack"
+
+    },
+    "MatrixTest\0constructorMatrixTypeInt\0"
+    "\0constructorMatrixTypeChar\0"
+    "constructorMatrixTypeShort\0"
+    "constructorMatrixTypeFloat\0"
+    "constructorMatrixTypeLongDouble\0"
+    "constructorMatrixTypeDouble\0"
+    "constructorMatrixTypeCStringAndDouble\0"
+    "constructorMatrixTypeStringAndDouble\0"
+    "constructorSizedVoidMatrixDouble\0"
+    "constructorNULLMatrixDouble\0"
+    "copyconstructorDouble\0"
+    "copyconstructorOtherTypeDoubleAndInt\0"
+    "destructorDouble\0removeRowDoubleFirstTest\0"
+    "removeRowDoubleSecondTest\0"
+    "removeRowDoubleThirdTest\0"
+    "removeColumnDoubleFirstTest\0"
+    "removeColumnDoubleSecondTest\0"
+    "removeColumnDoubleThirdTest\0"
+    "getNumberOfRowsDouble\0getNumberOfColumnsDouble\0"
+    "getRowDouble\0getColumnDouble\0lengthDouble\0"
+    "sizeDouble\0isNullDouble\0isSquareDouble\0"
+    "operatorParenthesisInputTwoUnsignedDouble\0"
+    "operatorParenthesisInputTwoUnsignedOutputConstDouble\0"
+    "operatorAtributionDoubleReturningVoid\0"
+    "operatorAtributionDoubleReturningDouble\0"
+    "operatorAtributionDoubleReturningInt\0"
+    "operatorAtributionDoubleReturningShort\0"
+    "operatorAtributionDoubleReturningLongInt\0"
+    "operatorAtributionDoubleReturningLongFloat\0"
+    "operatorSumAccumulatorScalarDouble\0"
+    "operatorSumAccumulatorMatrixDouble\0"
+    "operatorSubtractionAccumulatorScalarDouble\0"
+    "operatorSubtractionAccumulatorMatrixDouble\0"
+    "operatorMultiplicationAccumulatorScalarDouble\0"
+    "operatorMultiplicationAccumulatorMatrixDouble\0"
+    "operatorDivisionAccumulatorScalarDouble\0"
+    "horizontalConcatenationOperatorScalarDouble\0"
+    "horizontalConcatenationOperatorMatrixDouble\0"
+    "verticalConcatenationOperatorScalarDouble\0"
+    "verticalConcatenationOperatorMatrixDouble\0"
+    "bufferOperatorDoubleCase1\0"
+    "bufferOperatorDoubleCase2\0"
+    "bufferOperatorDoubleCase3\0"
+    "bufferOperatorDoubleCase4\0"
+    "bufferOperatorDoubleCase5\0"
+    "bufferOperatorDoubleCase6\0"
+    "bufferOperatorDoubleCase7\0"
+    "bufferOperatorDoubleCase8\0"
+    "bufferOperatorDoubleCase9\0"
+    "bufferOperatorDoubleCase10\0"
+    "operatorSumMatrixScalarDouble\0"
+    "operatorSumScalarMatrixDouble\0"
+    "operatorSumMatrixMatrixDouble\0"
+    "operatorSubtractionMatrixScalarDouble\0"
+    "operatorSubtractionScalarMatrixDouble\0"
+    "operatorSubtractionMatrixMatrixDouble\0"
+    "operatorMultiplicationMatrixScalarDouble\0"
+    "operatorMultiplicationScalarMatrixDouble\0"
+    "operatorMultiplicationMatrixMatrixDouble\0"
+    "operatorDivisionMatrixScalarDouble\0"
+    "operatorNegativeMatrixDouble\0"
+    "operatorTransposeMatrixDouble\0"
+    "zerosMatrixDouble\0identityMatrixDouble\0"
+    "onesMatrixDouble\0LineVector\0"
+    "operatorBufferStringShow\0"
+    "operatorBufferStringBack"
+};
+#undef QT_MOC_LITERAL
+
+static const uint qt_meta_data_MatrixTest[] = {
+
+ // content:
+       8,       // revision
+       0,       // classname
+       0,    0, // classinfo
+      74,   14, // methods
+       0,    0, // properties
+       0,    0, // enums/sets
+       0,    0, // constructors
+       0,       // flags
+       0,       // signalCount
+
+ // slots: name, argc, parameters, tag, flags
+       1,    0,  384,    2, 0x08 /* Private */,
+       3,    0,  385,    2, 0x08 /* Private */,
+       4,    0,  386,    2, 0x08 /* Private */,
+       5,    0,  387,    2, 0x08 /* Private */,
+       6,    0,  388,    2, 0x08 /* Private */,
+       7,    0,  389,    2, 0x08 /* Private */,
+       8,    0,  390,    2, 0x08 /* Private */,
+       9,    0,  391,    2, 0x08 /* Private */,
+      10,    0,  392,    2, 0x08 /* Private */,
+      11,    0,  393,    2, 0x08 /* Private */,
+      12,    0,  394,    2, 0x08 /* Private */,
+      13,    0,  395,    2, 0x08 /* Private */,
+      14,    0,  396,    2, 0x08 /* Private */,
+      15,    0,  397,    2, 0x08 /* Private */,
+      16,    0,  398,    2, 0x08 /* Private */,
+      17,    0,  399,    2, 0x08 /* Private */,
+      18,    0,  400,    2, 0x08 /* Private */,
+      19,    0,  401,    2, 0x08 /* Private */,
+      20,    0,  402,    2, 0x08 /* Private */,
+      21,    0,  403,    2, 0x08 /* Private */,
+      22,    0,  404,    2, 0x08 /* Private */,
+      23,    0,  405,    2, 0x08 /* Private */,
+      24,    0,  406,    2, 0x08 /* Private */,
+      25,    0,  407,    2, 0x08 /* Private */,
+      26,    0,  408,    2, 0x08 /* Private */,
+      27,    0,  409,    2, 0x08 /* Private */,
+      28,    0,  410,    2, 0x08 /* Private */,
+      29,    0,  411,    2, 0x08 /* Private */,
+      30,    0,  412,    2, 0x08 /* Private */,
+      31,    0,  413,    2, 0x08 /* Private */,
+      32,    0,  414,    2, 0x08 /* Private */,
+      33,    0,  415,    2, 0x08 /* Private */,
+      34,    0,  416,    2, 0x08 /* Private */,
+      35,    0,  417,    2, 0x08 /* Private */,
+      36,    0,  418,    2, 0x08 /* Private */,
+      37,    0,  419,    2, 0x08 /* Private */,
+      38,    0,  420,    2, 0x08 /* Private */,
+      39,    0,  421,    2, 0x08 /* Private */,
+      40,    0,  422,    2, 0x08 /* Private */,
+      41,    0,  423,    2, 0x08 /* Private */,
+      42,    0,  424,    2, 0x08 /* Private */,
+      43,    0,  425,    2, 0x08 /* Private */,
+      44,    0,  426,    2, 0x08 /* Private */,
+      45,    0,  427,    2, 0x08 /* Private */,
+      46,    0,  428,    2, 0x08 /* Private */,
+      47,    0,  429,    2, 0x08 /* Private */,
+      48,    0,  430,    2, 0x08 /* Private */,
+      49,    0,  431,    2, 0x08 /* Private */,
+      50,    0,  432,    2, 0x08 /* Private */,
+      51,    0,  433,    2, 0x08 /* Private */,
+      52,    0,  434,    2, 0x08 /* Private */,
+      53,    0,  435,    2, 0x08 /* Private */,
+      54,    0,  436,    2, 0x08 /* Private */,
+      55,    0,  437,    2, 0x08 /* Private */,
+      56,    0,  438,    2, 0x08 /* Private */,
+      57,    0,  439,    2, 0x08 /* Private */,
+      58,    0,  440,    2, 0x08 /* Private */,
+      59,    0,  441,    2, 0x08 /* Private */,
+      60,    0,  442,    2, 0x08 /* Private */,
+      61,    0,  443,    2, 0x08 /* Private */,
+      62,    0,  444,    2, 0x08 /* Private */,
+      63,    0,  445,    2, 0x08 /* Private */,
+      64,    0,  446,    2, 0x08 /* Private */,
+      65,    0,  447,    2, 0x08 /* Private */,
+      66,    0,  448,    2, 0x08 /* Private */,
+      67,    0,  449,    2, 0x08 /* Private */,
+      68,    0,  450,    2, 0x08 /* Private */,
+      69,    0,  451,    2, 0x08 /* Private */,
+      70,    0,  452,    2, 0x08 /* Private */,
+      71,    0,  453,    2, 0x08 /* Private */,
+      72,    0,  454,    2, 0x08 /* Private */,
+      73,    0,  455,    2, 0x08 /* Private */,
+      74,    0,  456,    2, 0x08 /* Private */,
+      75,    0,  457,    2, 0x08 /* Private */,
+
+ // slots: parameters
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+
+       0        // eod
+};
+
+void MatrixTest::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+{
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        auto *_t = static_cast<MatrixTest *>(_o);
+        Q_UNUSED(_t)
+        switch (_id) {
+        case 0: _t->constructorMatrixTypeInt(); break;
+        case 1: _t->constructorMatrixTypeChar(); break;
+        case 2: _t->constructorMatrixTypeShort(); break;
+        case 3: _t->constructorMatrixTypeFloat(); break;
+        case 4: _t->constructorMatrixTypeLongDouble(); break;
+        case 5: _t->constructorMatrixTypeDouble(); break;
+        case 6: _t->constructorMatrixTypeCStringAndDouble(); break;
+        case 7: _t->constructorMatrixTypeStringAndDouble(); break;
+        case 8: _t->constructorSizedVoidMatrixDouble(); break;
+        case 9: _t->constructorNULLMatrixDouble(); break;
+        case 10: _t->copyconstructorDouble(); break;
+        case 11: _t->copyconstructorOtherTypeDoubleAndInt(); break;
+        case 12: _t->destructorDouble(); break;
+        case 13: _t->removeRowDoubleFirstTest(); break;
+        case 14: _t->removeRowDoubleSecondTest(); break;
+        case 15: _t->removeRowDoubleThirdTest(); break;
+        case 16: _t->removeColumnDoubleFirstTest(); break;
+        case 17: _t->removeColumnDoubleSecondTest(); break;
+        case 18: _t->removeColumnDoubleThirdTest(); break;
+        case 19: _t->getNumberOfRowsDouble(); break;
+        case 20: _t->getNumberOfColumnsDouble(); break;
+        case 21: _t->getRowDouble(); break;
+        case 22: _t->getColumnDouble(); break;
+        case 23: _t->lengthDouble(); break;
+        case 24: _t->sizeDouble(); break;
+        case 25: _t->isNullDouble(); break;
+        case 26: _t->isSquareDouble(); break;
+        case 27: _t->operatorParenthesisInputTwoUnsignedDouble(); break;
+        case 28: _t->operatorParenthesisInputTwoUnsignedOutputConstDouble(); break;
+        case 29: _t->operatorAtributionDoubleReturningVoid(); break;
+        case 30: _t->operatorAtributionDoubleReturningDouble(); break;
+        case 31: _t->operatorAtributionDoubleReturningInt(); break;
+        case 32: _t->operatorAtributionDoubleReturningShort(); break;
+        case 33: _t->operatorAtributionDoubleReturningLongInt(); break;
+        case 34: _t->operatorAtributionDoubleReturningLongFloat(); break;
+        case 35: _t->operatorSumAccumulatorScalarDouble(); break;
+        case 36: _t->operatorSumAccumulatorMatrixDouble(); break;
+        case 37: _t->operatorSubtractionAccumulatorScalarDouble(); break;
+        case 38: _t->operatorSubtractionAccumulatorMatrixDouble(); break;
+        case 39: _t->operatorMultiplicationAccumulatorScalarDouble(); break;
+        case 40: _t->operatorMultiplicationAccumulatorMatrixDouble(); break;
+        case 41: _t->operatorDivisionAccumulatorScalarDouble(); break;
+        case 42: _t->horizontalConcatenationOperatorScalarDouble(); break;
+        case 43: _t->horizontalConcatenationOperatorMatrixDouble(); break;
+        case 44: _t->verticalConcatenationOperatorScalarDouble(); break;
+        case 45: _t->verticalConcatenationOperatorMatrixDouble(); break;
+        case 46: _t->bufferOperatorDoubleCase1(); break;
+        case 47: _t->bufferOperatorDoubleCase2(); break;
+        case 48: _t->bufferOperatorDoubleCase3(); break;
+        case 49: _t->bufferOperatorDoubleCase4(); break;
+        case 50: _t->bufferOperatorDoubleCase5(); break;
+        case 51: _t->bufferOperatorDoubleCase6(); break;
+        case 52: _t->bufferOperatorDoubleCase7(); break;
+        case 53: _t->bufferOperatorDoubleCase8(); break;
+        case 54: _t->bufferOperatorDoubleCase9(); break;
+        case 55: _t->bufferOperatorDoubleCase10(); break;
+        case 56: _t->operatorSumMatrixScalarDouble(); break;
+        case 57: _t->operatorSumScalarMatrixDouble(); break;
+        case 58: _t->operatorSumMatrixMatrixDouble(); break;
+        case 59: _t->operatorSubtractionMatrixScalarDouble(); break;
+        case 60: _t->operatorSubtractionScalarMatrixDouble(); break;
+        case 61: _t->operatorSubtractionMatrixMatrixDouble(); break;
+        case 62: _t->operatorMultiplicationMatrixScalarDouble(); break;
+        case 63: _t->operatorMultiplicationScalarMatrixDouble(); break;
+        case 64: _t->operatorMultiplicationMatrixMatrixDouble(); break;
+        case 65: _t->operatorDivisionMatrixScalarDouble(); break;
+        case 66: _t->operatorNegativeMatrixDouble(); break;
+        case 67: _t->operatorTransposeMatrixDouble(); break;
+        case 68: _t->zerosMatrixDouble(); break;
+        case 69: _t->identityMatrixDouble(); break;
+        case 70: _t->onesMatrixDouble(); break;
+        case 71: _t->LineVector(); break;
+        case 72: _t->operatorBufferStringShow(); break;
+        case 73: _t->operatorBufferStringBack(); break;
+        default: ;
+        }
+    }
+    Q_UNUSED(_a);
+}
+
+QT_INIT_METAOBJECT const QMetaObject MatrixTest::staticMetaObject = { {
+    &QObject::staticMetaObject,
+    qt_meta_stringdata_MatrixTest.data,
+    qt_meta_data_MatrixTest,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
+
+
+const QMetaObject *MatrixTest::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
+}
+
+void *MatrixTest::qt_metacast(const char *_clname)
+{
+    if (!_clname) return nullptr;
+    if (!strcmp(_clname, qt_meta_stringdata_MatrixTest.stringdata0))
+        return static_cast<void*>(this);
+    return QObject::qt_metacast(_clname);
+}
+
+int MatrixTest::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QObject::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        if (_id < 74)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 74;
+    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+        if (_id < 74)
+            *reinterpret_cast<int*>(_a[0]) = -1;
+        _id -= 74;
+    }
+    return _id;
+}
+QT_WARNING_POP
+QT_END_MOC_NAMESPACE
