@@ -18,6 +18,8 @@ ControlHandler::systemLoopHandler<Type>::systemLoopHandler(){
     TIMER_FINE_ADJ      =  (0*(TIMER_BASE_CLK / config.divider)/1000000); /*!< used to compensate alarm value */
     TIMER_INTERVAL0_SEC = (0.0001);   /*!< test interval for timer 0 */
     maxIterator = 600;
+    operationalInput  = 0;
+    operationalOutput = 0;
     startIterator = true;
 }
 
@@ -104,8 +106,8 @@ template <typename Type>
 void ControlHandler::systemExitationforRelayLoop(ControlHandler::systemLoopHandler<Type> *idStructure){// timer group 0, ISR
     if(idStructure->iterator < idStructure->maxIterator){
         idStructure->signal[idStructure->channel]->setPowerLevel(idStructure->inputSignal);
-        idStructure->in [idStructure->iterator] = idStructure->inputSignal;
-        idStructure->out[idStructure->iterator] = idStructure->signal[idStructure->channel]->getFeedbackForPowerControl();
+        idStructure->in [idStructure->iterator] = idStructure->inputSignal - idStructure->operationalInput;
+        idStructure->out[idStructure->iterator] = idStructure->signal[idStructure->channel]->getFeedbackForPowerControl() - idStructure->operationalOutput;
         idStructure->error = idStructure->reference - idStructure->out[idStructure->iterator];
         if(fabs(idStructure->error) > idStructure->tolerance && idStructure->error > 0) idStructure->inputSignal = idStructure->maxLimit;
         if(fabs(idStructure->error) > idStructure->tolerance && idStructure->error < 0) idStructure->inputSignal = idStructure->minLimit;
@@ -120,8 +122,8 @@ void ControlHandler::systemExitationforRelayLoop(ControlHandler::systemLoopHandl
 template <typename Type>
 void ControlHandler::systemControlLoop(ControlHandler::systemLoopHandler<Type> *idStructure){// timer group 0, ISR
     if(idStructure->iterator < idStructure->maxIterator){
-        idStructure->out[idStructure->iterator] = idStructure->signal[0]->getFeedbackForPowerControl();
-        idStructure->in[idStructure->iterator] = idStructure->pid[0]->OutputControl( idStructure->reference, idStructure->out[idStructure->iterator]);
+        idStructure->out[idStructure->iterator] = idStructure->signal[0]->getFeedbackForPowerControl() - idStructure->operationalOutput;
+        idStructure->in[idStructure->iterator] = idStructure->pid[0]->OutputControl( idStructure->reference, idStructure->out[idStructure->iterator]) + idStructure->operationalInput;
         idStructure->signal[0]->setPowerLevel( idStructure->in[idStructure->iterator]);
     
         idStructure->iterator++;
@@ -139,9 +141,9 @@ void ControlHandler::controlLoop(ControlHandler::systemLoopHandler<Type> *idStru
 }
 
 template <typename Type>
-void ControlHandler::normalController(ControlHandler::systemLoopHandler<Type> *idStructure)//verificar a estabilidade para vários canais, se pvParameter é diferente
+void ControlHandler::normalController(ControlHandler::systemLoopHandler<Type> *idStructure, uint_fast8_t repetition)//verificar a estabilidade para vários canais, se pvParameter é diferente
 {
-    for(uint_fast8_t i = 0; i < 20; ++i)
+    for(uint_fast8_t i = 0; i < repetition; ++i)
     {
         gpio_set_level(idStructure->signal[0]->getOutputHandlerReversePin(), 0);
         ets_delay_us(100);
@@ -178,8 +180,7 @@ void ControlHandler::wifiSend(ControlHandler::systemLoopHandler<Type> *idStructu
 template <typename Type>
 void ControlHandler::reTune(systemLoopHandler<Type> *idStructure)
 {
-
-    for(unsigned j = 0; j < idStructure->iterator; ++j)
+    for(unsigned j = idStructure->operationalPointIterator; j < idStructure->iterator; ++j)
         idStructure->rls[idStructure->channel]->optimize(idStructure->in[j], idStructure->out[j]);
 
     LinAlg::Matrix<long double> FOP = c2dConversion(idStructure->boost[idStructure->channel][0]); //etapa de sintonia
@@ -194,7 +195,7 @@ void ControlHandler::relayExitationLoop(void* pvParameter)
 {
     ControlHandler::systemLoopHandler<long double> *idStructure = ((ControlHandler::systemLoopHandler<long double>*) pvParameter);
     std::stringstream ss; ss << std::setw(2*5+1) << std::setprecision(5) << std::fixed << "\nEntrada | Saida \n";  idStructure->wifi << ss.str(); ss.clear();
-    idStructure->in = new long double[idStructure->maxIterator]; idStructure->out = new long double[idStructure->maxIterator];
+    idStructure->in = new int16_t[idStructure->maxIterator]; idStructure->out = new int16_t[idStructure->maxIterator];
     idStructure->iterator = 0;
     
    
@@ -202,13 +203,16 @@ void ControlHandler::relayExitationLoop(void* pvParameter)
     idStructure->loopHandler = IDENTIFICATION;
     idStructure->startLoop(ControlHandler::systemLoop); // esse primeiro loop objetiva estabilizar a saída no ponto de operação
     adc1_get_raw((adc1_channel_t)idStructure->channel);
-    ControlHandler::normalController(idStructure);
+    ControlHandler::normalController(idStructure,10);
+    idStructure->operationalPointIterator = idStructure->iterator - 1;
+    idStructure->operationalInput  =  idStructure->in [idStructure->operationalPointIterator]; 
+    idStructure->operationalOutput =  idStructure->out[idStructure->operationalPointIterator]; 
 
     std::cout << idStructure->minLimit << std::endl;
 
     idStructure->loopHandler = RELAY;
     idStructure->reference = idStructure->signal[0]->getSignalBehavior("ccLevel");
-    ControlHandler::normalController(idStructure);
+    ControlHandler::normalController(idStructure,40);
     idStructure->signal[idStructure->channel]->setPowerLevel(0);
     gpio_set_level(idStructure->signal[0]->getOutputHandlerDirectPin(),  0);
     gpio_set_level(idStructure->signal[0]->getOutputHandlerReversePin(), 0);

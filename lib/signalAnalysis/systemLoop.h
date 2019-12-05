@@ -32,17 +32,18 @@ namespace ControlHandler{
         void pauseLoop();
         void resumeLoop();
 
-        volatile uint32_t reference, inputSignal, minLimit, maxLimit, channel, tolerance, error;
+        volatile int16_t inputSignal, minLimit, maxLimit, channel, tolerance, operationalInput, operationalOutput;
+        Type reference, error;
         ControlHandler::PID<Type> **pid;
-        ModelHandler::ARX<double> **boost;
+        ModelHandler::ARX<Type> **boost;
         ElectroStimulation::bioSignalController **signal;
-        OptimizationHandler::RecursiveLeastSquare<double> **rls;
+        OptimizationHandler::RecursiveLeastSquare<Type> **rls;
         volatile timer_group_t timer_group;
         volatile timer_idx_t timer_idx;
         timer_config_t config;
         volatile float TIMER_SCALE, TIMER_FINE_ADJ, TIMER_INTERVAL0_SEC;
-        Type *in, *out;
-        volatile uint32_t iterator, maxIterator;
+        int16_t *in, *out;
+        volatile uint16_t iterator, maxIterator, operationalPointIterator;
         bool startIterator;
         Communication::Wifi wifi;
         TaskHandle_t *xHandle;
@@ -78,7 +79,7 @@ namespace ControlHandler{
     inline void controlLoop(systemLoopHandler<Type> *idStructure);
     
     template <typename Type>
-    inline void normalController (systemLoopHandler<Type> *idStructure);
+    inline void normalController (systemLoopHandler<Type> *idStructure, uint_fast8_t repetition);
 
     template <typename Type>
     inline void wifiSend(systemLoopHandler<Type> *idStructure);

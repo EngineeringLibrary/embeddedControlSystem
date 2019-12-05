@@ -10,7 +10,7 @@
 #include "serial.h"
 #include "systemLoop.h"
 
-ControlHandler::systemLoopHandler<uint32_t> *idStructure = new ControlHandler::systemLoopHandler<uint32_t>();
+ControlHandler::systemLoopHandler<long double> *idStructure = new ControlHandler::systemLoopHandler<long double>();
 uint8_t levelPin[1] = {2},
         modPin[2]   = {15, 4};
 bool flag;
@@ -18,7 +18,7 @@ bool flag;
 void wifiCallback(Communication::Wifi &wifi1)
 {
 	std::string msg = wifi1.getData();
-    bool cmd = msg[0] - 1;
+    uint8_t cmd = msg[0] - 1;
 	uint8_t ch = 0;//msg[1] - 1; 
 
     uint8_t mod = msg[2] - 1;
@@ -42,7 +42,7 @@ void wifiCallback(Communication::Wifi &wifi1)
         idStructure->channel  = ch;
         idStructure->minLimit = freq;
         idStructure->maxLimit = period;
-        idStructure->tolerance = 70;
+        idStructure->tolerance = cmd;
 
         //idStructure->maxIterator = 1500;
         //idStructure->in = new uint32_t[idStructure->maxIterator]; idStructure->out = new uint32_t[idStructure->maxIterator];
@@ -58,11 +58,11 @@ void wifiCallback(Communication::Wifi &wifi1)
 
         idStructure->xHandle[ch] = new TaskHandle_t;
         std::cout << "Entrou 2\n";
-        idStructure->boost[ch]   = new ModelHandler::ARX<double>(1,1);
+        idStructure->boost[ch]   = new ModelHandler::ARX<long double>(1,1);
         std::cout << "Entrou 3\n";
-        idStructure->pid[ch]     = new ControlHandler::PID<uint32_t>("100,33,0");
+        idStructure->pid[ch]     = new ControlHandler::PID<long double>("100,33,0");
         std::cout << "Entrou 4\n";
-        idStructure->rls[ch]     = new OptimizationHandler::RecursiveLeastSquare<double>(idStructure->boost[ch]);
+        idStructure->rls[ch]     = new OptimizationHandler::RecursiveLeastSquare<long double>(idStructure->boost[ch]);
         
         std::cout << "Entrou 5\n";
         //xTaskCreatePinnedToCore(ControlHandler::squaredWaveExitationLoop, "squaredWaveExitationLoop", 8*1024, 
@@ -100,9 +100,9 @@ extern "C" void app_main()
     idStructure->signal[0] = NULL; //idStructure->signal[1] = NULL; idStructure->signal[1] = NULL; idStructure->signal[1] = NULL;
     idStructure->xHandle = new TaskHandle_t[1];
     idStructure->xHandle[0] = NULL; //idStructure->xHandle[1] = NULL; idStructure->xHandle[1] = NULL; idStructure->xHandle[1] = NULL;
-    idStructure->boost   = new ModelHandler::ARX<double>*[1];
-    idStructure->pid     = new ControlHandler::PID<uint32_t>*[1];
-    idStructure->rls     = new OptimizationHandler::RecursiveLeastSquare<double>*[1];
+    idStructure->boost   = new ModelHandler::ARX<long double>*[1];
+    idStructure->pid     = new ControlHandler::PID<long double>*[1];
+    idStructure->rls     = new OptimizationHandler::RecursiveLeastSquare<long double>*[1];
     idStructure->wifi.connect();
     idStructure->wifi >> wifiCallback;
     vTaskStartScheduler();	
