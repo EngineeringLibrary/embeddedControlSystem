@@ -12,7 +12,6 @@ namespace ControlHandler{
         Type Error, pastError, integralError, derivativeError, Step, kp, ki, kd, upperLimit, lowerLimit, PIDout;
 
         inline void errorLimitation();
-
         inline void intError();
         inline void difError();
 

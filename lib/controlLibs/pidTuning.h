@@ -2,6 +2,8 @@
 #define PIDTUNNING_H
 
 #include "pid.h"
+#include "conversions.h"
+#include "pidTuning.h"
 
 
 namespace ControlHandler{

@@ -15,8 +15,8 @@ ControlHandler::PID<Type>::PID()
     this->Step = 1;
     //this->upperLimit = 200; 
     //this->lowerLimit = -200;
-    this->upperLimit = 200 / this->Step;// ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação.;
-    this->lowerLimit = -200/ this->Step;// ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação;
+    this->upperLimit = 50 / this->Step;// ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação.;
+    this->lowerLimit = 0/ this->Step;// ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação;
 }
 
 template<typename Type>

@@ -9,8 +9,6 @@
 #include "wifi/wifi.h"
 #include "serial.h"
 #include "systemLoop.h"
-#include "conversions.h"
-#include "pidTuning.h"
 
 ControlHandler::systemLoopHandler<uint32_t> *idStructure = new ControlHandler::systemLoopHandler<uint32_t>();
 uint8_t levelPin[1] = {2},
@@ -44,7 +42,7 @@ void wifiCallback(Communication::Wifi &wifi1)
         idStructure->channel  = ch;
         idStructure->minLimit = freq;
         idStructure->maxLimit = period;
-        idStructure->tolerance = cmd;
+        idStructure->tolerance = 70;
 
         //idStructure->maxIterator = 1500;
         //idStructure->in = new uint32_t[idStructure->maxIterator]; idStructure->out = new uint32_t[idStructure->maxIterator];
@@ -98,28 +96,28 @@ void wifiCallback(Communication::Wifi &wifi1)
 
 extern "C" void app_main()
 { 
-    // idStructure->signal  = new ElectroStimulation::bioSignalController*[1]();
-    // idStructure->signal[0] = NULL; //idStructure->signal[1] = NULL; idStructure->signal[1] = NULL; idStructure->signal[1] = NULL;
-    // idStructure->xHandle = new TaskHandle_t[1];
-    // idStructure->xHandle[0] = NULL; //idStructure->xHandle[1] = NULL; idStructure->xHandle[1] = NULL; idStructure->xHandle[1] = NULL;
-    // idStructure->boost   = new ModelHandler::ARX<double>*[1];
-    // idStructure->pid     = new ControlHandler::PID<uint32_t>*[1];
-    // idStructure->rls     = new OptimizationHandler::RecursiveLeastSquare<double>*[1];
-    // idStructure->wifi.connect();
-    // idStructure->wifi >> wifiCallback;
-    // vTaskStartScheduler();	
+    idStructure->signal  = new ElectroStimulation::bioSignalController*[1]();
+    idStructure->signal[0] = NULL; //idStructure->signal[1] = NULL; idStructure->signal[1] = NULL; idStructure->signal[1] = NULL;
+    idStructure->xHandle = new TaskHandle_t[1];
+    idStructure->xHandle[0] = NULL; //idStructure->xHandle[1] = NULL; idStructure->xHandle[1] = NULL; idStructure->xHandle[1] = NULL;
+    idStructure->boost   = new ModelHandler::ARX<double>*[1];
+    idStructure->pid     = new ControlHandler::PID<uint32_t>*[1];
+    idStructure->rls     = new OptimizationHandler::RecursiveLeastSquare<double>*[1];
+    idStructure->wifi.connect();
+    idStructure->wifi >> wifiCallback;
+    vTaskStartScheduler();	
 
-    ModelHandler::ARX<double> arx(1,1); 
-    std::cout << "Entrou 1" << std::endl;
-    arx.setModelCoef("0.949896, 0.51987");
-    std::cout << "Entrou 2" << std::endl;
-    arx.setSampleTime(12.5);
-    std::cout << "Entrou 3" << std::endl;
-    LinAlg::Matrix<long double> FOP = c2dConversion(arx);
-    std::cout << FOP << std::endl;
-    for(uint_fast8_t i = 0; i < 10; ++i){
-        ControlHandler::PID<long double> pid = ControlHandler::controllerTuning(FOP,"PI", ControlHandler::tune[i]);
-        std::cout << pid.getParams() << std::endl;
-    }
-    while(1);
+    // ModelHandler::ARX<double> arx(1,1); 
+    // std::cout << "Entrou 1" << std::endl;
+    // arx.setModelCoef("0.949896, 0.51987");
+    // std::cout << "Entrou 2" << std::endl;
+    // arx.setSampleTime(12.5);
+    // std::cout << "Entrou 3" << std::endl;
+    // LinAlg::Matrix<long double> FOP = c2dConversion(arx);
+    // std::cout << FOP << std::endl;
+    // for(uint_fast8_t i = 0; i < 10; ++i){
+    //     ControlHandler::PID<long double> pid = ControlHandler::controllerTuning(FOP,"PI", ControlHandler::tune[i]);
+    //     std::cout << pid.getParams() << std::endl;
+    // }
+    // while(1);
 }

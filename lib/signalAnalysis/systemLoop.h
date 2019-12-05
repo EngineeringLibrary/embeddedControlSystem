@@ -11,8 +11,17 @@
 #include "bioSignalGenerator.h"
 #include "arx.h"
 #include "pid.h"
+#include "pidTuning.h"
 
 namespace ControlHandler{
+    typedef enum {
+        IDENTIFICATION = 0, /*!<Hw timer group 0*/
+        RELAY = 1, /*!<Hw timer group 1*/
+        CONTROL = 2,
+        LOOP_MAX,
+    } loopHandler_t;
+
+
     template <typename Type>
     struct systemLoopHandler{
 
@@ -20,8 +29,10 @@ namespace ControlHandler{
         
         void startLoop(void (*loopFunction2Call)(void*));
         void stopLoop();
+        void pauseLoop();
+        void resumeLoop();
 
-        volatile uint32_t reference, inputSignal, minLimit, maxLimit, channel, tolerance;
+        volatile uint32_t reference, inputSignal, minLimit, maxLimit, channel, tolerance, error;
         ControlHandler::PID<Type> **pid;
         ModelHandler::ARX<double> **boost;
         ElectroStimulation::bioSignalController **signal;
@@ -32,16 +43,18 @@ namespace ControlHandler{
         volatile float TIMER_SCALE, TIMER_FINE_ADJ, TIMER_INTERVAL0_SEC;
         Type *in, *out;
         volatile uint32_t iterator, maxIterator;
+        bool startIterator;
         Communication::Wifi wifi;
         TaskHandle_t *xHandle;
+        loopHandler_t loopHandler;
     };
     
 
     //template <typename Type>
-    static void closedLoopNormalController(void*);
+    //static void closedLoopNormalController(void*);
 
-    template <typename Type>
-    static void closedLoopTwoFaseNormalController(void*){}
+    //template <typename Type>
+    //static void closedLoopTwoFaseNormalController(void*){}
 
     static void squaredWaveExitationLoop(void*);
 
@@ -50,13 +63,28 @@ namespace ControlHandler{
     static void closedLoopTwoFaseNormalController(void*);
     
     //template <typename Type>
-    void IRAM_ATTR systemControlLoop(void *para);
+    void IRAM_ATTR systemLoop(void *para);
 
-    void IRAM_ATTR systemExitationForIdentificationLoop(void *para);
+    template <typename Type>
+    inline void systemControlLoop(systemLoopHandler<Type> *idStructure);
 
-    void IRAM_ATTR systemExitationforRelayLoop(void *para);
+    template <typename Type>
+    inline void systemExitationForIdentificationLoop(systemLoopHandler<Type> *idStructure);
 
-    void IRAM_ATTR controlLoop(void *para);
+    template <typename Type>
+    inline void systemExitationforRelayLoop(systemLoopHandler<Type> *idStructure);
+
+    template <typename Type>
+    inline void controlLoop(systemLoopHandler<Type> *idStructure);
+    
+    template <typename Type>
+    inline void normalController (systemLoopHandler<Type> *idStructure);
+
+    template <typename Type>
+    inline void wifiSend(systemLoopHandler<Type> *idStructure);
+
+    template <typename Type>
+    inline void reTune(systemLoopHandler<Type> *idStructure);
 
 }
 
