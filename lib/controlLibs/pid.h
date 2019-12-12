@@ -18,6 +18,7 @@ namespace ControlHandler{
     public:
         PID();
         PID(const LinAlg::Matrix<Type> &PIDsParameters, const Type &Step = 1);
+        PID(Type kp, Type ki, Type kd, const Type &Step = 1);
 
         Type getSampleTime() const {return this->Step;}
         Type getErrorValue() const {return this->Error;}

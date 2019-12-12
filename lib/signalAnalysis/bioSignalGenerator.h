@@ -26,7 +26,7 @@ namespace ElectroStimulation{
     class bioSignalController
     {
     public:
-        bioSignalController(){}
+        bioSignalController(){output = 0;}
         void powerControllerInit(const gpio_num_t &pin, const adc1_channel_t &feedbackPin, const uint32_t &freq, const ledc_channel_t &channel, const ledc_timer_t &timer);
         void setPowerLevel(const double &powerLevel);
         void setOutputHandlerDirectPin(const gpio_num_t &outputHandlerDirectPin);
@@ -42,12 +42,15 @@ namespace ElectroStimulation{
                                                     SENS.sar_meas_start1.meas1_start_sar = 0;
                                                     SENS.sar_meas_start1.meas1_start_sar = 1;
                                                     while (SENS.sar_meas_start1.meas1_done_sar == 0);
-                                                    return SENS.sar_meas_start1.meas1_data_sar;}
+                                                    output +=  0.2*(SENS.sar_meas_start1.meas1_data_sar-output);
+                                                    output2 +=  0.2*(output-output2);
+                                                    return output2;}
 
     private:
 
         ledc_channel_config_t ledc_channel;
         ledc_timer_config_t ledc_timer;
+        long double output, output2;
         gpio_num_t outputHandlerDirectPin, outputHandlerReversePin; adc1_channel_t feedbackPin;
         std::map<std::string, double> signalBehaviorHandler;
         void adc_i2s_init(void);

@@ -15,39 +15,46 @@ ControlHandler::PID<Type>::PID()
     this->Step = 1;
     //this->upperLimit = 200; 
     //this->lowerLimit = -200;
-    this->upperLimit = 50 / this->Step;// ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação.;
-    this->lowerLimit = 0/ this->Step;// ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação;
+    this->upperLimit = 20 / this->Step;// ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação.;
+    this->lowerLimit = -20/ this->Step;// ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação;
+}
+
+template<typename Type>
+ControlHandler::PID<Type>::PID(Type kp, Type ki, Type kd, const Type &Step)
+{
+    this->Step = Step;
+    this->kp = kp;
+    this->ki = ki * this->Step; // ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação.
+    if(!this->Step)
+        this->Step = 1;
+
+    this->kd = kd / this->Step; // ajustei para que Kd seja dividido pelo step. Isso vai diminuir em 1 divisão.
+    
+    this->Error = 0;
+    this->derivativeError = 0;
+    this->pastError = 0;
+    this->integralError = 0;
+    this->upperLimit = 20 / this->Step;// ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação.;
+    this->lowerLimit = -20/ this->Step;// ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação;
 }
 
 template<typename Type>
 ControlHandler::PID<Type>::PID(const LinAlg::Matrix<Type> &PIDsParameters, const Type &Step)
 {
-    //std::cout << "entrou PID 1\n"; 
+    this->Step = Step;
     this->kp = PIDsParameters(0,0);
-    //this->ki = PIDsParameters(0,1);
-    //this->kd = PIDsParameters(0,2);
-    //std::cout << "entrou PID 2\n"; 
     this->ki = PIDsParameters(0,1) * this->Step; // ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação.
-    //std::cout << "entrou PID 3\n"; 
     if(!this->Step)
         this->Step = 1;
 
     this->kd = PIDsParameters(0,2) / this->Step; // ajustei para que Kd seja dividido pelo step. Isso vai diminuir em 1 divisão.
     
-    //std::cout << "entrou PID 4\n";
     this->Error = 0;
-    //std::cout << "entrou PID 5\n";
     this->derivativeError = 0;
-    //std::cout << "entrou PID 6\n";
     this->pastError = 0;
-    //std::cout << "entrou PID 7\n";
     this->integralError = 0;
-    //std::cout << "entrou PID 8\n";
-    //this->Step = 1;
-    this->upperLimit = 1000000;
-    //std::cout << "entrou PID 9\n";
-    this->lowerLimit = -1000000;
-    //std::cout << "entrou PID 10\n";
+    this->upperLimit = 20 / this->Step;// ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação.;
+    this->lowerLimit = -20/ this->Step;// ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação;
 }
 
 template<typename Type>
@@ -98,7 +105,14 @@ void ControlHandler::PID<Type>::setLimits(Type lowerLimit, Type upperLimit)
 template<typename Type>
 void ControlHandler::PID<Type>::setSampleTime(Type Time)
 {
+    this->ki = ki / this->Step; // ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação.
+    this->kd = kd * this->Step; // ajustei para que Kd seja dividido pelo step. Isso vai diminuir em 1 divisão.
+
     this->Step = Time;
+
+    this->ki = ki * this->Step; // ajustei para que Ki seja multiplicado pelo step. Isso vai diminuir em 1 multiplicação.
+    this->kd = kd / this->Step; // ajustei para que Kd seja dividido pelo step. Isso vai diminuir em 1 divisão.
+    
 }
 
 template<typename Type>
@@ -127,9 +141,9 @@ Type ControlHandler::PID<Type>::OutputControl(Type Reference, Type SignalInput)
 {
     this->Error = Reference - SignalInput;
 
-    difError();
+    //difError();
     intError();
-    this->PIDout = (this->kp*this->Error + this->ki*this->integralError + this->kd*this->derivativeError);
+    this->PIDout = (this->kp*this->Error + this->ki*this->integralError); //+ this->kd*this->derivativeError);
     errorLimitation();
     
     return this->PIDout;

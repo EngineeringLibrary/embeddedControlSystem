@@ -31,7 +31,7 @@ void Communication::Wifi::setDHCPConfig(void)
 
 void Communication::Wifi::setWifiConfig(void)
 {
-  strcpy((char *)this->config.ap.ssid, "AndreFelipe");
+  strcpy((char *)this->config.ap.ssid, "Eletroestimulador");
   this->config.ap.ssid_hidden = 0;
   this->config.ap.channel = 3;
   this->config.ap.ssid_len = strlen("AndreFelipe");

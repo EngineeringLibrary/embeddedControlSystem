@@ -15,7 +15,7 @@
 
 namespace ControlHandler{
     typedef enum {
-        IDENTIFICATION = 0, /*!<Hw timer group 0*/
+        SIMPLELOOP = 0, /*!<Hw timer group 0*/
         RELAY = 1, /*!<Hw timer group 1*/
         CONTROL = 2,
         LOOP_MAX,
@@ -32,10 +32,11 @@ namespace ControlHandler{
         void pauseLoop();
         void resumeLoop();
 
-        volatile int16_t inputSignal, minLimit, maxLimit, channel, tolerance, operationalInput, operationalOutput;
-        Type reference, error;
+        volatile int16_t inputSignal, relayMinLimit, relayMaxLimit, channel, tolerance, operationalInput, operationalOutput, reactionCurveReference, simpleLoopValue;
+        Type controllerReference, relayReference, error, controllerSensibility;
         ControlHandler::PID<Type> **pid;
         ModelHandler::ARX<Type> **boost;
+        LinAlg::Matrix<Type> controlReferences;
         ElectroStimulation::bioSignalController **signal;
         OptimizationHandler::RecursiveLeastSquare<Type> **rls;
         volatile timer_group_t timer_group;
@@ -45,23 +46,18 @@ namespace ControlHandler{
         int16_t *in, *out;
         volatile uint16_t iterator, maxIterator, operationalPointIterator;
         bool startIterator;
+        volatile uint8_t tuningMethod, controller; 
         Communication::Wifi wifi;
         TaskHandle_t *xHandle;
         loopHandler_t loopHandler;
     };
     
 
-    //template <typename Type>
-    //static void closedLoopNormalController(void*);
-
-    //template <typename Type>
-    //static void closedLoopTwoFaseNormalController(void*){}
-
     static void squaredWaveExitationLoop(void*);
 
     static void relayExitationLoop(void*);
 
-    static void closedLoopTwoFaseNormalController(void*);
+    //static void closedLoopTwoFaseNormalController(void*);
     
     //template <typename Type>
     void IRAM_ATTR systemLoop(void *para);
@@ -70,7 +66,7 @@ namespace ControlHandler{
     inline void systemControlLoop(systemLoopHandler<Type> *idStructure);
 
     template <typename Type>
-    inline void systemExitationForIdentificationLoop(systemLoopHandler<Type> *idStructure);
+    inline void simpleLoop(systemLoopHandler<Type> *idStructure);
 
     template <typename Type>
     inline void systemExitationforRelayLoop(systemLoopHandler<Type> *idStructure);

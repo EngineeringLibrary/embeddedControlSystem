@@ -27,7 +27,7 @@ namespace Communication{
       Wifi(){ this->FunctionToCall = nullptr; }
       ~Wifi(){::vTaskDelete(m_pTask);}
       bool connect(void (*FunctionToCall)(std::string) = 0);
-      bool write(std::string word){ err = netconn_write(this->newconn,  word.c_str(),strlen(word.c_str()),NETCONN_COPY); return 1;}
+      bool write(std::string word){ err = netconn_write(this->newconn,  word.c_str(),strlen(word.c_str()),NETCONN_COPY); word.clear(); return 1;}
       std::string read(){return this->readString;}
 
       std::string getData(){ return readString;}

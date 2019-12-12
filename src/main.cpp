@@ -17,72 +17,55 @@ bool flag;
 
 void wifiCallback(Communication::Wifi &wifi1)
 {
-	std::string msg = wifi1.getData();
-    uint8_t cmd = msg[0] - 1;
-	uint8_t ch = 0;//msg[1] - 1; 
+    LinAlg::Matrix<long double> code = wifi1.getData();
+	std::cout << code;
 
-    uint8_t mod = msg[2] - 1;
-    uint16_t freq = (((msg[3] - 1) << 8) | (msg[4] - 1));
-    uint16_t period = (((msg[5] - 1) << 8) | (msg[6] - 1));
-    uint8_t pwr = msg[7] - 1;
-	
-    std::cout << (uint16_t)cmd << "," << (uint16_t)ch << "," << (uint16_t)mod << "," << (uint16_t)freq << "," << (uint16_t)period << "," << (uint16_t)pwr << "\n";
-	
-	//if(cmd)
-	//{
-        // if(idStructure->signal[ch] != NULL && idStructure->xHandle[ch] != NULL){
-        //     vTaskDelete(idStructure->xHandle[ch]);
-        //     std::cout << "EntrouS 1\n";
-        //     delete idStructure->signal[ch];
-        //     std::cout << "EntrouS 3\n";
-        //     idStructure->signal[ch] = NULL;
-        //     std::cout << "EntrouS 4\n";
-        //     flag = false;
-	    // }
-        idStructure->channel  = ch;
-        idStructure->minLimit = freq;
-        idStructure->maxLimit = period;
-        idStructure->tolerance = cmd;
+    idStructure->channel = code(0,0); uint8_t cmd = code(0,1); 
+    idStructure->pid[idStructure->channel] = new ControlHandler::PID<long double>();
+    idStructure->pid[idStructure->channel]->setLimits(code(0,2),code(0,3));
+    idStructure->pid[idStructure->channel]->setParams(code(0,4),code(0,5),code(0,6));//kp,pi,kd
+    idStructure->pid[idStructure->channel]->setSampleTime(12.5);
+    idStructure->controllerSensibility = code(0,7);
+    idStructure->controllerReference = code(0,8);
+    idStructure->operationalInput    = code(0,9);
+    idStructure->operationalOutput   = code(0,10);
+    idStructure->controller = code(0,11);
+    idStructure->tuningMethod = code(0,12);
 
-        //idStructure->maxIterator = 1500;
-        //idStructure->in = new uint32_t[idStructure->maxIterator]; idStructure->out = new uint32_t[idStructure->maxIterator];
-        idStructure->signal[ch] = new ElectroStimulation::bioSignalController;
-        idStructure->signal[ch]->powerControllerInit((gpio_num_t) levelPin[ch], (adc1_channel_t) ch, 10000, 
-                                    (ledc_channel_t)ch, (ledc_timer_t)ch);
-        idStructure->signal[ch]->setOutputHandlerDirectPin((gpio_num_t) modPin[ch]);
-        idStructure->signal[ch]->setOutputHandlerReversePin((gpio_num_t) modPin[ch+1]);
-        //idStructure->signal[ch]->addSignalBehavior("freq", freq);
-        //idStructure->signal[ch]->addSignalBehavior("period", period);
-        idStructure->signal[ch]->addSignalBehavior("ccLevel", pwr);
-        std::cout << "Entrou 1\n";
+    idStructure->relayReference = code(0,13);
+    idStructure->relayMinLimit  = code(0,14);
+    idStructure->relayMaxLimit  = code(0,15);
+    idStructure->tolerance = code(0,16);
+    idStructure->reactionCurveReference = code(0,17); 
 
-        idStructure->xHandle[ch] = new TaskHandle_t;
-        std::cout << "Entrou 2\n";
-        idStructure->boost[ch]   = new ModelHandler::ARX<long double>(1,1);
-        std::cout << "Entrou 3\n";
-        idStructure->pid[ch]     = new ControlHandler::PID<long double>("100,33,0");
-        std::cout << "Entrou 4\n";
-        idStructure->rls[ch]     = new OptimizationHandler::RecursiveLeastSquare<long double>(idStructure->boost[ch]);
-        
-        std::cout << "Entrou 5\n";
-        //xTaskCreatePinnedToCore(ControlHandler::squaredWaveExitationLoop, "squaredWaveExitationLoop", 8*1024, 
-        //                idStructure, 8, idStructure->xHandle[ch], 0);
-        // flag = true;
+    idStructure->signal[idStructure->channel] = new ElectroStimulation::bioSignalController;
+    idStructure->signal[idStructure->channel]->addSignalBehavior("freq",    code(0,18));
+    idStructure->signal[idStructure->channel]->addSignalBehavior("period",  code(0,19));
+    idStructure->signal[idStructure->channel]->addSignalBehavior("ccLevel", code(0,20));
+    idStructure->maxIterator = code(0,21);
 
-        switch(mod){
-            case 0: xTaskCreatePinnedToCore(ControlHandler::relayExitationLoop,                 "CLNC",        8*1024, idStructure,             8, &idStructure->xHandle[ch], 0); break;
-            case 1: xTaskCreatePinnedToCore(ControlHandler::squaredWaveExitationLoop,           "CLNC",        8*1024, idStructure,             8, &idStructure->xHandle[ch], 0); break;
-            case 2: xTaskCreatePinnedToCore(ControlHandler::closedLoopTwoFaseNormalController,  "CLNC",        8*1024, idStructure,             8, &idStructure->xHandle[ch], 0); break;
-            //case 0: xTaskCreatePinnedToCore(ElectroStimulation::burstController,                "burst",       4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
-            //case 1: xTaskCreatePinnedToCore(ElectroStimulation::twoFaseNormalController,        "normal",      4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
-            //case 2: xTaskCreatePinnedToCore(ElectroStimulation::modulationController,           "modulation",  4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
-            //case 3: xTaskCreatePinnedToCore(ElectroStimulation::sd1Controller,                  "sd1",         4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
-            //case 4: xTaskCreatePinnedToCore(ElectroStimulation::sd2Controller,                  "sd2",         4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
-            //case 5: xTaskCreatePinnedToCore(ControlHandler::squaredWaveExitationLoop,           "squaredWave", 8*1024, idStructure,             8, &idStructure->xHandle[ch], 0); break;
-            //case 6: xTaskCreatePinnedToCore(ControlHandler::relayExitationLoop,                 "relay",       8*1024, idStructure,             8, &idStructure->xHandle[ch], 0); break;
-            //case 7: xTaskCreatePinnedToCore(ControlHandler::closedLoopTwoFaseNormalController,  "CLNC",        8*1024, idStructure,             8, &idStructure->xHandle[ch], 0); break;
-            //case 8: xTaskCreatePinnedToCore(ControlHandler::relayExitationLoop, "relay", 8*1024, idStructure, 8, &idStructure->xHandle[ch], 0); break;
-        }
+    idStructure->signal[idStructure->channel]->powerControllerInit((gpio_num_t) levelPin[idStructure->channel], (adc1_channel_t) idStructure->channel, 10000, 
+                                (ledc_channel_t)idStructure->channel, (ledc_timer_t)idStructure->channel);
+    idStructure->signal[idStructure->channel]->setOutputHandlerDirectPin((gpio_num_t) modPin[idStructure->channel]);
+    idStructure->signal[idStructure->channel]->setOutputHandlerReversePin((gpio_num_t) modPin[idStructure->channel+1]);
+
+    idStructure->xHandle[idStructure->channel] = new TaskHandle_t;
+    idStructure->boost[idStructure->channel]   = new ModelHandler::ARX<long double>(1,1); idStructure->boost[idStructure->channel]->setSampleTime(12.5);
+    idStructure->rls[idStructure->channel]     = new OptimizationHandler::RecursiveLeastSquare<long double>(idStructure->boost[idStructure->channel]);
+
+    switch(cmd){
+        case 0: xTaskCreatePinnedToCore(ControlHandler::relayExitationLoop,                 "CLNC",        8*1024, idStructure,             8, &idStructure->xHandle[idStructure->channel], 0); break;
+        case 1: xTaskCreatePinnedToCore(ControlHandler::squaredWaveExitationLoop,           "CLNC",        8*1024, idStructure,             8, &idStructure->xHandle[idStructure->channel], 0); break;
+        //case 0: xTaskCreatePinnedToCore(ElectroStimulation::burstController,                "burst",       4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
+        //case 1: xTaskCreatePinnedToCore(ElectroStimulation::twoFaseNormalController,        "normal",      4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
+        //case 2: xTaskCreatePinnedToCore(ElectroStimulation::modulationController,           "modulation",  4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
+        //case 3: xTaskCreatePinnedToCore(ElectroStimulation::sd1Controller,                  "sd1",         4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
+        //case 4: xTaskCreatePinnedToCore(ElectroStimulation::sd2Controller,                  "sd2",         4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
+        //case 5: xTaskCreatePinnedToCore(ControlHandler::squaredWaveExitationLoop,           "squaredWave", 8*1024, idStructure,             8, &idStructure->xHandle[ch], 0); break;
+        //case 6: xTaskCreatePinnedToCore(ControlHandler::relayExitationLoop,                 "relay",       8*1024, idStructure,             8, &idStructure->xHandle[ch], 0); break;
+        //case 7: xTaskCreatePinnedToCore(ControlHandler::closedLoopTwoFaseNormalController,  "CLNC",        8*1024, idStructure,             8, &idStructure->xHandle[ch], 0); break;
+        //case 8: xTaskCreatePinnedToCore(ControlHandler::relayExitationLoop, "relay", 8*1024, idStructure, 8, &idStructure->xHandle[ch], 0); break;
+    }
         
    
         
