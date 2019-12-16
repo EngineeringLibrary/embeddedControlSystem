@@ -62,6 +62,7 @@ void ControlHandler::PID<Type>::errorLimitation()
 {
     if(this->PIDout >= this->upperLimit)
     {
+        //std::cout << "PIDU: " << this->PIDout << "\n";
         this->checkUpLim = true;
         this->PIDout = this->upperLimit;
     }
@@ -70,11 +71,14 @@ void ControlHandler::PID<Type>::errorLimitation()
 
     if(this->PIDout <= this->lowerLimit)
     {
+        //std::cout << "PIDL: " << this->PIDout << "\n";
         this->checkLowLim = true;
         this->PIDout = this->lowerLimit;
     }
     else
         this->checkLowLim = false;
+    //std::cout << "UUL: " << this->upperLimit << " LLL:" << this->lowerLimit << "\n";
+    //std::cout << "LL: " << this->checkLowLim << " UL:" << this->checkUpLim << "\n";
 }
 
 template<typename Type>
@@ -140,9 +144,10 @@ template<typename Type>
 Type ControlHandler::PID<Type>::OutputControl(Type Reference, Type SignalInput)
 {
     this->Error = Reference - SignalInput;
-
+    //std::cout << "E: " << this->Error << " IE:" << this->integralError << "\n";
     //difError();
     intError();
+    //std::cout << "kp: " << this->kp << " ki:" << this->ki <<  "\n";
     this->PIDout = (this->kp*this->Error + this->ki*this->integralError); //+ this->kd*this->derivativeError);
     errorLimitation();
     

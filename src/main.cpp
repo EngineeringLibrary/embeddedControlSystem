@@ -13,36 +13,28 @@
 ControlHandler::systemLoopHandler<long double> *idStructure = new ControlHandler::systemLoopHandler<long double>();
 uint8_t levelPin[1] = {2},
         modPin[2]   = {15, 4};
-bool flag;
+bool flag = false;
 
 void wifiCallback(Communication::Wifi &wifi1)
 {
+    if(idStructure->xHandle[idStructure->channel] != NULL && flag) vTaskDelete(idStructure->xHandle[idStructure->channel]);
+    flag = true;
     LinAlg::Matrix<long double> code = wifi1.getData();
 	std::cout << code;
 
-    idStructure->channel = code(0,0); uint8_t cmd = code(0,1); 
+    idStructure->channel = 0; uint8_t cmd = code(0,0); 
     idStructure->pid[idStructure->channel] = new ControlHandler::PID<long double>();
-    idStructure->pid[idStructure->channel]->setLimits(code(0,2),code(0,3));
-    idStructure->pid[idStructure->channel]->setParams(code(0,4),code(0,5),code(0,6));//kp,pi,kd
-    idStructure->pid[idStructure->channel]->setSampleTime(12.5);
-    idStructure->controllerSensibility = code(0,7);
-    idStructure->controllerReference = code(0,8);
-    idStructure->operationalInput    = code(0,9);
-    idStructure->operationalOutput   = code(0,10);
-    idStructure->controller = code(0,11);
-    idStructure->tuningMethod = code(0,12);
-
-    idStructure->relayReference = code(0,13);
-    idStructure->relayMinLimit  = code(0,14);
-    idStructure->relayMaxLimit  = code(0,15);
-    idStructure->tolerance = code(0,16);
-    idStructure->reactionCurveReference = code(0,17); 
+    idStructure->pid[idStructure->channel]->setLimits(code(0,1),code(0,2));
+    idStructure->pid[idStructure->channel]->setParams(code(0,3),code(0,4),code(0,5));//kp,pi,kd
+    idStructure->pid[idStructure->channel]->setSampleTime(1);
+    idStructure->controllerSensibility = code(0,6);
+    idStructure->controllerReference = code(0,7);
 
     idStructure->signal[idStructure->channel] = new ElectroStimulation::bioSignalController;
-    idStructure->signal[idStructure->channel]->addSignalBehavior("freq",    code(0,18));
-    idStructure->signal[idStructure->channel]->addSignalBehavior("period",  code(0,19));
-    idStructure->signal[idStructure->channel]->addSignalBehavior("ccLevel", code(0,20));
-    idStructure->maxIterator = code(0,21);
+    idStructure->signal[idStructure->channel]->addSignalBehavior("freq",    code(0,8));
+    idStructure->signal[idStructure->channel]->addSignalBehavior("period",  code(0,9));
+    idStructure->signal[idStructure->channel]->addSignalBehavior("ccLevel", code(0,10));
+    idStructure->maxIterator = code(0,11);
 
     idStructure->signal[idStructure->channel]->powerControllerInit((gpio_num_t) levelPin[idStructure->channel], (adc1_channel_t) idStructure->channel, 10000, 
                                 (ledc_channel_t)idStructure->channel, (ledc_timer_t)idStructure->channel);
@@ -54,27 +46,11 @@ void wifiCallback(Communication::Wifi &wifi1)
     idStructure->rls[idStructure->channel]     = new OptimizationHandler::RecursiveLeastSquare<long double>(idStructure->boost[idStructure->channel]);
 
     switch(cmd){
-        case 0: xTaskCreatePinnedToCore(ControlHandler::relayExitationLoop,                 "CLNC",        8*1024, idStructure,             8, &idStructure->xHandle[idStructure->channel], 0); break;
-        case 1: xTaskCreatePinnedToCore(ControlHandler::squaredWaveExitationLoop,           "CLNC",        8*1024, idStructure,             8, &idStructure->xHandle[idStructure->channel], 0); break;
-        //case 0: xTaskCreatePinnedToCore(ElectroStimulation::burstController,                "burst",       4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
-        //case 1: xTaskCreatePinnedToCore(ElectroStimulation::twoFaseNormalController,        "normal",      4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
-        //case 2: xTaskCreatePinnedToCore(ElectroStimulation::modulationController,           "modulation",  4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
-        //case 3: xTaskCreatePinnedToCore(ElectroStimulation::sd1Controller,                  "sd1",         4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
-        //case 4: xTaskCreatePinnedToCore(ElectroStimulation::sd2Controller,                  "sd2",         4*1024, idStructure->signal[ch], 8, &idStructure->xHandle[ch], 1); break;
-        //case 5: xTaskCreatePinnedToCore(ControlHandler::squaredWaveExitationLoop,           "squaredWave", 8*1024, idStructure,             8, &idStructure->xHandle[ch], 0); break;
-        //case 6: xTaskCreatePinnedToCore(ControlHandler::relayExitationLoop,                 "relay",       8*1024, idStructure,             8, &idStructure->xHandle[ch], 0); break;
-        //case 7: xTaskCreatePinnedToCore(ControlHandler::closedLoopTwoFaseNormalController,  "CLNC",        8*1024, idStructure,             8, &idStructure->xHandle[ch], 0); break;
-        //case 8: xTaskCreatePinnedToCore(ControlHandler::relayExitationLoop, "relay", 8*1024, idStructure, 8, &idStructure->xHandle[ch], 0); break;
+        case 0: xTaskCreatePinnedToCore(ControlHandler::LimiarTest,         "CLNC",8*1024, idStructure,8, &idStructure->xHandle[idStructure->channel], 1); break;
+        case 1: xTaskCreatePinnedToCore(ControlHandler::angleControlNormal, "CLNC",8*1024, idStructure,8, &idStructure->xHandle[idStructure->channel], 0); break;
+        case 2: if(idStructure->xHandle[idStructure->channel] != NULL) vTaskDelete(idStructure->xHandle[idStructure->channel]);
     }
         
-   
-        
-	//}
-
-    //accel.read();
-    //std::cout << "Entrou 2\n";
-    //std::stringstream ss; ss << accel.get_x();
-    //wifi << ss.str();
 }
 
 extern "C" void app_main()
@@ -86,6 +62,7 @@ extern "C" void app_main()
     idStructure->boost   = new ModelHandler::ARX<long double>*[1];
     idStructure->pid     = new ControlHandler::PID<long double>*[1];
     idStructure->rls     = new OptimizationHandler::RecursiveLeastSquare<long double>*[1];
+    idStructure->accel.init(); 
     idStructure->wifi.connect();
     idStructure->wifi >> wifiCallback;
     vTaskStartScheduler();	

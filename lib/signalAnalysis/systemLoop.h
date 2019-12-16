@@ -8,6 +8,7 @@
 #include "driver/periph_ctrl.h"
 #include "driver/timer.h"
 
+#include "adxl345.h"
 #include "bioSignalGenerator.h"
 #include "arx.h"
 #include "pid.h"
@@ -18,6 +19,7 @@ namespace ControlHandler{
         SIMPLELOOP = 0, /*!<Hw timer group 0*/
         RELAY = 1, /*!<Hw timer group 1*/
         CONTROL = 2,
+        ANGLECONTROL = 3,
         LOOP_MAX,
     } loopHandler_t;
 
@@ -34,6 +36,7 @@ namespace ControlHandler{
 
         volatile int16_t inputSignal, relayMinLimit, relayMaxLimit, channel, tolerance, operationalInput, operationalOutput, reactionCurveReference, simpleLoopValue;
         Type controllerReference, relayReference, error, controllerSensibility;
+        adxl345 accel;
         ControlHandler::PID<Type> **pid;
         ModelHandler::ARX<Type> **boost;
         LinAlg::Matrix<Type> controlReferences;
@@ -43,7 +46,7 @@ namespace ControlHandler{
         volatile timer_idx_t timer_idx;
         timer_config_t config;
         volatile float TIMER_SCALE, TIMER_FINE_ADJ, TIMER_INTERVAL0_SEC;
-        int16_t *in, *out;
+        long double *in, *out;
         volatile uint16_t iterator, maxIterator, operationalPointIterator;
         bool startIterator;
         volatile uint8_t tuningMethod, controller; 
@@ -57,7 +60,9 @@ namespace ControlHandler{
 
     static void relayExitationLoop(void*);
 
-    //static void closedLoopTwoFaseNormalController(void*);
+    static void LimiarTest(void*);
+
+    static void angleControlNormal(void*);
     
     //template <typename Type>
     void IRAM_ATTR systemLoop(void *para);
@@ -70,18 +75,21 @@ namespace ControlHandler{
 
     template <typename Type>
     inline void systemExitationforRelayLoop(systemLoopHandler<Type> *idStructure);
-
-    template <typename Type>
-    inline void controlLoop(systemLoopHandler<Type> *idStructure);
     
     template <typename Type>
     inline void normalController (systemLoopHandler<Type> *idStructure, uint_fast8_t repetition);
+
+    template <typename Type>
+    inline void closedLoopNormalController (systemLoopHandler<Type> *idStructure, uint_fast8_t repetition);
 
     template <typename Type>
     inline void wifiSend(systemLoopHandler<Type> *idStructure);
 
     template <typename Type>
     inline void reTune(systemLoopHandler<Type> *idStructure);
+
+    template <typename Type>
+    inline void angleControlLoop(systemLoopHandler<Type> *idStructure);
 
 }
 
