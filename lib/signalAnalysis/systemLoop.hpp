@@ -65,7 +65,7 @@ void ControlHandler::systemLoopHandler<Type>::resumeLoop(){
 }
 
 void IRAM_ATTR ControlHandler::systemLoop(void *para){// timer group 0, ISR
-    ControlHandler::systemLoopHandler<long double> *idStructure = ((ControlHandler::systemLoopHandler<long double>*) para);
+    ControlHandler::systemLoopHandler<double> *idStructure = ((ControlHandler::systemLoopHandler<double>*) para);
     timer_idx_t timer_idx = idStructure->timer_idx;
     uint32_t intr_status = TIMERG0.int_st_timers.val;
     if((intr_status & BIT(timer_idx)) ) {
@@ -187,8 +187,8 @@ void ControlHandler::reTune(systemLoopHandler<Type> *idStructure)
         idStructure->rls[idStructure->channel]->optimize(idStructure->in[j], idStructure->out[j]);
     }
 
-    LinAlg::Matrix<long double> FOP = d2cConversion(idStructure->boost[idStructure->channel][0]); //etapa de sintonia 
-    long double sampleTime = idStructure->pid[idStructure->channel]->getSampleTime();
+    LinAlg::Matrix<double> FOP = d2cConversion(idStructure->boost[idStructure->channel][0]); //etapa de sintonia 
+    double sampleTime = idStructure->pid[idStructure->channel]->getSampleTime();
     FOP(0,2) = sampleTime*idStructure->controllerSensibility;
     switch (idStructure->controller)
     {
@@ -219,11 +219,11 @@ void ControlHandler::reTune(systemLoopHandler<Type> *idStructure)
 
 void ControlHandler::relayExitationLoop(void* pvParameter)
 {
-    ControlHandler::systemLoopHandler<long double> *idStructure = ((ControlHandler::systemLoopHandler<long double>*) pvParameter);
+    ControlHandler::systemLoopHandler<double> *idStructure = ((ControlHandler::systemLoopHandler<double>*) pvParameter);
     idStructure->wifi << "N";
     //std::stringstream ss;
     // idStructure->in = new int16_t[idStructure->maxIterator]; idStructure->out = new int16_t[idStructure->maxIterator];
-    idStructure->in = new long double[idStructure->maxIterator]; idStructure->out = new long double[idStructure->maxIterator];
+    idStructure->in = new double[idStructure->maxIterator]; idStructure->out = new double[idStructure->maxIterator];
     idStructure->iterator = 0;
     
     idStructure->simpleLoopValue = idStructure->reactionCurveReference;
@@ -329,7 +329,7 @@ void ControlHandler::angleControlLoop(ControlHandler::systemLoopHandler<Type> *i
 
 void ControlHandler::LimiarTest(void* pvParameter)
 {
-    ControlHandler::systemLoopHandler<long double> *idStructure = ((ControlHandler::systemLoopHandler<long double>*) pvParameter);
+    ControlHandler::systemLoopHandler<double> *idStructure = ((ControlHandler::systemLoopHandler<double>*) pvParameter);
     
     idStructure->signal[idStructure->channel]->setPowerLevel(idStructure->signal[idStructure->channel]->getSignalBehavior("ccLevel"));
     while(true){
@@ -349,40 +349,36 @@ void ControlHandler::closedLoopNormalController(ControlHandler::systemLoopHandle
     gpio_set_level(idStructure->signal[idStructure->channel]->getOutputHandlerDirectPin(),  0);
     gpio_set_level(idStructure->signal[idStructure->channel]->getOutputHandlerReversePin(), 0);
 
-    for(uint_fast16_t j = 0; j < 900; ++j){
+    for(uint_fast16_t j = 0; j < idStructure->maxIterator; ++j){
         idStructure->accel.read();
         idStructure->out[j] = idStructure->accel.get_filtered_x();
-        idStructure->in [j] = idStructure->pid[0]->OutputControl(idStructure->controllerReference,idStructure->out[j]);
-        idStructure->signal[0]->setPowerLevel(idStructure->in [j]);
-        std::cout << "R: " << idStructure->controllerReference << "O: " << idStructure->out[j] << "I: " << idStructure->in [j] <<"\n";
-        for(uint_fast16_t i = 0; i < 3; ++i)
-        {
-            gpio_set_level(idStructure->signal[idStructure->channel]->getOutputHandlerReversePin(), 0);
-            ets_delay_us(time1);
-            gpio_set_level(idStructure->signal[idStructure->channel]->getOutputHandlerDirectPin(),  1);
-            ets_delay_us(time2);
+        idStructure->in [j] = idStructure->pid[idStructure->channel]->OutputControl(idStructure->controllerReference,idStructure->out[j]);
+        idStructure->signal[idStructure->channel]->setPowerLevel(idStructure->in [j]);
+        //std::cout << "R: " << idStructure->controllerReference << "O: " << idStructure->out[j] << "I: " << idStructure->in [j] <<"\n";
+        gpio_set_level(idStructure->signal[idStructure->channel]->getOutputHandlerReversePin(), 0);
+        ets_delay_us(time1);
+        gpio_set_level(idStructure->signal[idStructure->channel]->getOutputHandlerDirectPin(),  1);
+        ets_delay_us(time2);
 
-            gpio_set_level(idStructure->signal[idStructure->channel]->getOutputHandlerDirectPin(),  0);
-            ets_delay_us(time1);
-            gpio_set_level(idStructure->signal[idStructure->channel]->getOutputHandlerReversePin(), 1);
-            ets_delay_us(time2);
-        }
-        //std::cout << reference << ", " << y << ", " << u << std::endl;
+        gpio_set_level(idStructure->signal[idStructure->channel]->getOutputHandlerDirectPin(),  0);
+        ets_delay_us(time1);
+        gpio_set_level(idStructure->signal[idStructure->channel]->getOutputHandlerReversePin(), 1);
+        ets_delay_us(time2);
     }
 }
 
 void ControlHandler::angleControlNormal(void* pvParameter)
 {
-    ControlHandler::systemLoopHandler<long double> *idStructure = ((ControlHandler::systemLoopHandler<long double>*) pvParameter);
+    ControlHandler::systemLoopHandler<double> *idStructure = ((ControlHandler::systemLoopHandler<double>*) pvParameter);
     idStructure->wifi << "N";
-    idStructure->in = new long double[idStructure->maxIterator]; idStructure->out = new long double[idStructure->maxIterator];
+    idStructure->in = new double[idStructure->maxIterator]; idStructure->out = new double[idStructure->maxIterator];
 
     ControlHandler::closedLoopNormalController(idStructure,40);
     idStructure->signal[idStructure->channel]->setPowerLevel(0);
     gpio_set_level(idStructure->signal[idStructure->channel]->getOutputHandlerDirectPin(),  0);
     gpio_set_level(idStructure->signal[idStructure->channel]->getOutputHandlerReversePin(), 0);
     
-    idStructure->iterator = 899;
+    idStructure->iterator = idStructure->maxIterator;
     ControlHandler::wifiSend(idStructure);
      
                                                                        

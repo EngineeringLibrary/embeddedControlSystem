@@ -46,7 +46,7 @@ namespace ControlHandler{
         volatile timer_idx_t timer_idx;
         timer_config_t config;
         volatile float TIMER_SCALE, TIMER_FINE_ADJ, TIMER_INTERVAL0_SEC;
-        long double *in, *out;
+        double *in, *out;
         volatile uint16_t iterator, maxIterator, operationalPointIterator;
         bool startIterator;
         volatile uint8_t tuningMethod, controller; 

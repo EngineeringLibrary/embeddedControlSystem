@@ -10,7 +10,7 @@
 #include "serial.h"
 #include "systemLoop.h"
 
-ControlHandler::systemLoopHandler<long double> *idStructure = new ControlHandler::systemLoopHandler<long double>();
+ControlHandler::systemLoopHandler<double> *idStructure = new ControlHandler::systemLoopHandler<double>();
 uint8_t levelPin[1] = {2},
         modPin[2]   = {15, 4};
 bool flag = false;
@@ -19,11 +19,11 @@ void wifiCallback(Communication::Wifi &wifi1)
 {
     if(idStructure->xHandle[idStructure->channel] != NULL && flag) vTaskDelete(idStructure->xHandle[idStructure->channel]);
     flag = true;
-    LinAlg::Matrix<long double> code = wifi1.getData();
+    LinAlg::Matrix<double> code = wifi1.getData();
 	std::cout << code;
 
     idStructure->channel = 0; uint8_t cmd = code(0,0); 
-    idStructure->pid[idStructure->channel] = new ControlHandler::PID<long double>();
+    idStructure->pid[idStructure->channel] = new ControlHandler::PID<double>();
     idStructure->pid[idStructure->channel]->setLimits(code(0,1),code(0,2));
     idStructure->pid[idStructure->channel]->setParams(code(0,3),code(0,4),code(0,5));//kp,pi,kd
     idStructure->pid[idStructure->channel]->setSampleTime(1);
@@ -42,8 +42,8 @@ void wifiCallback(Communication::Wifi &wifi1)
     idStructure->signal[idStructure->channel]->setOutputHandlerReversePin((gpio_num_t) modPin[idStructure->channel+1]);
 
     idStructure->xHandle[idStructure->channel] = new TaskHandle_t;
-    idStructure->boost[idStructure->channel]   = new ModelHandler::ARX<long double>(1,1); idStructure->boost[idStructure->channel]->setSampleTime(12.5);
-    idStructure->rls[idStructure->channel]     = new OptimizationHandler::RecursiveLeastSquare<long double>(idStructure->boost[idStructure->channel]);
+    idStructure->boost[idStructure->channel]   = new ModelHandler::ARX<double>(1,1); idStructure->boost[idStructure->channel]->setSampleTime(12.5);
+    idStructure->rls[idStructure->channel]     = new OptimizationHandler::RecursiveLeastSquare<double>(idStructure->boost[idStructure->channel]);
 
     switch(cmd){
         case 0: xTaskCreatePinnedToCore(ControlHandler::LimiarTest,         "CLNC",8*1024, idStructure,8, &idStructure->xHandle[idStructure->channel], 1); break;
@@ -59,25 +59,10 @@ extern "C" void app_main()
     idStructure->signal[0] = NULL; //idStructure->signal[1] = NULL; idStructure->signal[1] = NULL; idStructure->signal[1] = NULL;
     idStructure->xHandle = new TaskHandle_t[1];
     idStructure->xHandle[0] = NULL; //idStructure->xHandle[1] = NULL; idStructure->xHandle[1] = NULL; idStructure->xHandle[1] = NULL;
-    idStructure->boost   = new ModelHandler::ARX<long double>*[1];
-    idStructure->pid     = new ControlHandler::PID<long double>*[1];
-    idStructure->rls     = new OptimizationHandler::RecursiveLeastSquare<long double>*[1];
+    idStructure->boost   = new ModelHandler::ARX<double>*[1];
+    idStructure->pid     = new ControlHandler::PID<double>*[1];
+    idStructure->rls     = new OptimizationHandler::RecursiveLeastSquare<double>*[1];
     idStructure->accel.init(); 
     idStructure->wifi.connect();
     idStructure->wifi >> wifiCallback;
-    vTaskStartScheduler();	
-
-    // ModelHandler::ARX<double> arx(1,1); 
-    // std::cout << "Entrou 1" << std::endl;
-    // arx.setModelCoef("0.949896, 0.51987");
-    // std::cout << "Entrou 2" << std::endl;
-    // arx.setSampleTime(12.5);
-    // std::cout << "Entrou 3" << std::endl;
-    // LinAlg::Matrix<long double> FOP = c2dConversion(arx);
-    // std::cout << FOP << std::endl;
-    // for(uint_fast8_t i = 0; i < 10; ++i){
-    //     ControlHandler::PID<long double> pid = ControlHandler::controllerTuning(FOP,"PI", ControlHandler::tune[i]);
-    //     std::cout << pid.getParams() << std::endl;
-    // }
-    // while(1);
 }
