@@ -13,6 +13,7 @@
 #include "arx.h"
 #include "pid.h"
 #include "pidTuning.h"
+#include "wifi/wifista.h"
 
 namespace ControlHandler{
     typedef enum {
@@ -50,7 +51,7 @@ namespace ControlHandler{
         volatile uint16_t iterator, maxIterator, operationalPointIterator;
         bool startIterator;
         volatile uint8_t tuningMethod, controller; 
-        Communication::Wifi wifi;
+        Communication::WifiSTA wifi;
         TaskHandle_t *xHandle;
         loopHandler_t loopHandler;
     };

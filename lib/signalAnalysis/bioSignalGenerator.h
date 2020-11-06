@@ -68,5 +68,5 @@ namespace ElectroStimulation{
     void IRAM_ATTR controlLoop(void*);
 }
 
-#include "bioSignalGenerator.hpp"
+#include "SistemasdeControle/embeddedTools/signalAnalysis/bioSignalGenerator.hpp"
 #endif // BIOSIGNALGENERATOR_H

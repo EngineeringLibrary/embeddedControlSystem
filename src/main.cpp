@@ -6,17 +6,20 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "bioSignalGenerator.h"
-#include "wifi/wifi.h"
+#include "wifi/wifista.h"
 #include "serial.h"
 #include "systemLoop.h"
+#include "esp_http_client.h"
 
 ControlHandler::systemLoopHandler<double> *idStructure = new ControlHandler::systemLoopHandler<double>();
 uint8_t levelPin[1] = {2},
         modPin[2]   = {15, 4};
 bool flag = false;
+Communication::WifiSTA wifi;
 
-void wifiCallback(Communication::Wifi &wifi1)
+void wifiCallback(Communication::WifiSTA &wifi1)
 {
+    /*
     if(idStructure->xHandle[idStructure->channel] != NULL && flag) vTaskDelete(idStructure->xHandle[idStructure->channel]);
     flag = true;
     LinAlg::Matrix<double> code = wifi1.getData();
@@ -50,6 +53,13 @@ void wifiCallback(Communication::Wifi &wifi1)
         case 1: xTaskCreatePinnedToCore(ControlHandler::angleControlNormal, "CLNC",8*1024, idStructure,8, &idStructure->xHandle[idStructure->channel], 0); break;
         case 2: if(idStructure->xHandle[idStructure->channel] != NULL) vTaskDelete(idStructure->xHandle[idStructure->channel]);
     }
+    */
+    idStructure->accel.read();
+    std::stringstream ss; ss << std::setw(2*5+1) << std::setprecision(5) << std::fixed;
+    for (uint8_t i = 0; i < 50; ++i) 
+        ss << idStructure->accel.get_filtered_x() << ",  " << idStructure->accel.get_pitch() << ",  " << idStructure->accel.get_roll();
+    wifi << ss.str();
+    std::cout << ss.str();
         
 }
 
@@ -62,7 +72,9 @@ extern "C" void app_main()
     idStructure->boost   = new ModelHandler::ARX<double>*[1];
     idStructure->pid     = new ControlHandler::PID<double>*[1];
     idStructure->rls     = new OptimizationHandler::RecursiveLeastSquare<double>*[1];
-    idStructure->accel.init(); 
-    idStructure->wifi.connect();
-    idStructure->wifi >> wifiCallback;
+    idStructure->accel.init();
+    wifi.connect();
+    wifi >> wifiCallback; 
+    //idStructure->wifi.connect();
+    //idStructure->wifi >> wifiCallback;
 }
